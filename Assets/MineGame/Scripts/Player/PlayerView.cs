@@ -180,11 +180,11 @@ public class PlayerView : MonoBehaviour
 #region CheckGround
     private void CheckGround(){
         Vector3 origin = transform.position;
-        origin.y += .7f;
+        origin.y += .5f;
 
-        float dis = .8f;
+        float dis = .4f;
         if (isOnAir)
-            dis = .6f;
+            dis = .5f;
 
         Debug.DrawRay(origin, Vector3.down * dis, Color.red);
         if (Physics.SphereCast(origin, .2f, Vector3.down, out hit, dis, ignireForGroundCheck))
@@ -192,7 +192,7 @@ public class PlayerView : MonoBehaviour
             isGrounded = true;
             currentPosition = hit.point;
             if(hit.point.y - transform.position.y < .5f)
-                currentPosition.y = hit.point.y + .2f;
+                currentPosition.y = hit.point.y;
             Vector3 currentNormal = hit.normal;
 
             float angle = Vector3.Angle(Vector3.up, currentNormal);
