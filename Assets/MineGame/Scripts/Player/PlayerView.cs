@@ -1,13 +1,11 @@
+using Unity.Cinemachine;
 using UnityEngine;
 using VContainer;
 
 public class PlayerView : MonoBehaviour
 {
 #region param
-    [Inject] private PlayerInput input;
-
     private bool isInteracting;
-    private bool lockOn;
 
 #region move
     private bool isSprint;
@@ -16,38 +14,50 @@ public class PlayerView : MonoBehaviour
     [SerializeField] private readonly float sprintSpeed = 9f;
     private Vector2 currentPosition;
     private Vector3 inputMoveDirection;
-#endregion
-#region rotation
-    [SerializeField] private readonly float rotationSpeed = 10f;
-    [SerializeField] private readonly float atackRotationSpeed = 10f;
-#endregion
 
-    private Transform lockTarget;
-    private Transform camTransform;
-
-
-#region component
-    private Rigidbody rb;
-    private Animator anim;
-#endregion
 #region GroundCheck
     private bool isOnAir;
     public bool isGrounded;
     private RaycastHit hit;
     [SerializeField] private LayerMask ignireForGroundCheck;
 #endregion
+
+#region rotation
+    [SerializeField] private readonly float rotationSpeed = 10f;
+    [SerializeField] private readonly float atackRotationSpeed = 10f;
+#endregion
 #endregion
 
-    private void Start(){
+#region LockOn
+    private bool lockOn;
+    private Transform lockTarget;
+    [SerializeField] private LayerMask LockOnMask;
+    [SerializeField] private GameObject FollowCinemachine;
+    private ILockable currentLockable;
+#endregion
+
+    #region component
+    [Inject] private PlayerInput input;
+
+    private Transform camTransform;
+    private Rigidbody rb;
+    private Animator anim;
+#endregion
+#endregion
+
+    private void Start()
+    {
         camTransform = Camera.main.transform;
         rb = GetComponent<Rigidbody>();
         anim = GetComponentInChildren<Animator>();
 
-#region input
+        #region input
         input.Player.Move.performed += i => inputMoveDirection = i.ReadValue<Vector2>();
         input.Player.Move.canceled += i => inputMoveDirection = Vector2.zero;
 
-#endregion
+        input.Player.LockOn.started += i => LockOn();
+
+        #endregion
     }
 
     private void FixedUpdate()
@@ -56,62 +66,101 @@ public class PlayerView : MonoBehaviour
         Movement();
     }
 
+    #region ILock
+    private void LockOn()
+    {
+        if (lockOn)
+            DisableLockOn();
+        else
+        {
+            currentLockable = FindLockableTarget();
+
+            if (currentLockable != null)
+                lockTarget = currentLockable.GetLockOnTarget(transform);
+
+            if (lockTarget != null) {
+                FollowCinemachine.GetComponent<CinemachineCamera>().LookAt = lockTarget;
+                lockOn = true;
+            }
+            else
+                lockOn = false;
+        }
+        FollowCinemachine.SetActive(lockOn);
+    }
+    private void DisableLockOn()
+    {
+        FollowCinemachine.GetComponent<CinemachineCamera>().LookAt = null;
+        lockTarget = null;
+        lockOn = false;
+        currentLockable = null;
+    }
+    private ILockable FindLockableTarget()
+    {
+        Collider[] cols = Physics.OverlapSphere(transform.position, 20, LockOnMask);
+        foreach (Collider col in cols)
+            if (col.TryGetComponent(out ILockable iLock))
+                return iLock;
+        return null;
+    }
+#endregion
+
 #region Move
-    private void Movement(){
+    private void Movement()
+    {
         moveAmount = Mathf.Clamp01(Mathf.Abs(inputMoveDirection.y) + Mathf.Abs(inputMoveDirection.x));
 
         Vector3 movementDirection = camTransform.right * inputMoveDirection.x;
         movementDirection += camTransform.forward * inputMoveDirection.y;
         movementDirection.Normalize();
-        
+
         Vector3 targetVelocity;
 
-            //HANDLE ROTATION
-            if (!isInteracting)// || animatorHook.canRotate)
-            {
-                Vector3 rotationDir = movementDirection;
-
-                if (lockOn && !isSprint)
-                    rotationDir = lockTarget.position - transform.position;
-
-                HandleRotation(rotationDir);
-            }
+        //HANDLE ROTATION
+        if (!isInteracting)// || animatorHook.canRotate)
+        {
+            Vector3 rotationDir = movementDirection;
 
             if (lockOn && !isSprint)
+                rotationDir = lockTarget.position - transform.position;
+
+            HandleRotation(rotationDir);
+        }
+
+        if (lockOn && !isSprint)
+        {
+            targetVelocity = movementSpeed * inputMoveDirection.y * transform.forward;
+            targetVelocity += movementSpeed * inputMoveDirection.x * transform.right;
+        }
+        else
+        {
+            float speed = movementSpeed;
+            if (isSprint)
             {
-                targetVelocity = movementSpeed * inputMoveDirection.y * transform.forward;
-                targetVelocity += movementSpeed * inputMoveDirection.x * transform.right;
-            }
-            else
-            {
-                float speed = movementSpeed;
-                if (isSprint)
-                {
-                    if (movementDirection == Vector3.zero)
-                        isSprint = false;
-                    speed = sprintSpeed;
-                }
-
-                targetVelocity = movementDirection * speed;
+                if (movementDirection == Vector3.zero)
+                    isSprint = false;
+                speed = sprintSpeed;
             }
 
-            //if (isInteracting)
-            //    targetVelocity = deltaPosition * VelocityMultiplier;
+            targetVelocity = movementDirection * speed;
+        }
 
-            //HANDLE MOVEMENT
-            if (isGrounded)
-            {
-                Vector3 currentNormal = hit.normal;
-                targetVelocity = Vector3.ProjectOnPlane(targetVelocity, currentNormal);
+        //if (isInteracting)
+        //    targetVelocity = deltaPosition * VelocityMultiplier;
 
-                rb.linearVelocity = targetVelocity;
+        //HANDLE MOVEMENT
+        if (isGrounded)
+        {
+            Vector3 currentNormal = hit.normal;
+            targetVelocity = Vector3.ProjectOnPlane(targetVelocity, currentNormal);
 
-                Vector3 grondedPosition = transform.position;
-                grondedPosition.y = currentPosition.y;
-                transform.position = Vector3.Lerp(transform.position, grondedPosition, Time.deltaTime / .1f);
+            rb.linearVelocity = targetVelocity;
 
-                HandleAnimations();
-            }
+            Vector3 grondedPosition = transform.position;
+            grondedPosition.y = currentPosition.y;
+            transform.position = Vector3.Lerp(transform.position, grondedPosition, Time.deltaTime / .1f);
+
+            HandleAnimations();
+        }
     }
     private void HandleAnimations()
     {
