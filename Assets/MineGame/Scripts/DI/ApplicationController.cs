@@ -9,10 +9,12 @@ public class ApplicationController : LifetimeScope
 {
     [Header("Views")] 
 
-    [field: SerializeField] private PlayerInput input;
+    [SerializeField] private PlayerInput input;
 
     protected override void Configure(IContainerBuilder builder)
     {
+        Application.targetFrameRate = 60;
+        
         base.Configure(builder);
         
         RegisterControllers(builder);
@@ -34,6 +36,5 @@ public class ApplicationController : LifetimeScope
     {
         builder.RegisterInstance(input = new());
         input.Player.Enable();
-
     }
 }

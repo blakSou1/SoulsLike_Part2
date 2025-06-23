@@ -6,7 +6,7 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/MineGame/Scenes/SampleScene.unity
+    path: Assets/MineGame/Resources/Scenes/SampleScene.unity
     guid: 99c9720ab356a0642a771bea13969a05
   m_configObjects:
     com.unity.input.settings: {fileID: 11400000, guid: b0f122eaf916f154ab27402771b8994d, type: 2}
