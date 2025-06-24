@@ -63,6 +63,9 @@ public class PlayerView : MonoBehaviour
         input.Player.Move.performed += i => inputMoveDirection = i.ReadValue<Vector2>();
         input.Player.Move.canceled += i => inputMoveDirection = Vector2.zero;
 
+        input.Player.Sprint.started += i => isSprint = true;
+        input.Player.Sprint.canceled += i => isSprint = false;
+
         input.Player.LockOn.started += i => LockOn();
         input.Player.NewTargetLock.started += i =>
         {
