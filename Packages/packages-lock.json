@@ -7,6 +7,13 @@
       "dependencies": {},
       "hash": "06067cd4c83e372310d6f79d1c625f6870ff7a2a"
     },
+    "com.smkplus.custom-toolbar": {
+      "version": "https://github.com/smkplus/CustomToolbar.git#master",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "c42b0f4497a2b463490b59be9026cb63b1b884f9"
+    },
     "com.unity.ai.navigation": {
       "version": "2.0.7",
       "depth": 0,
