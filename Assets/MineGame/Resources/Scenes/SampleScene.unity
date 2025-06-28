@@ -2008,9 +2008,20 @@ PrefabInstance:
       value: Player
       objectReference: {fileID: 0}
     - target: {fileID: 3136235548901145222, guid: 72679c05775436648bdda8166a18ba3a, type: 3}
+      propertyPath: setMoveProfile
+      value: 
+      objectReference: {fileID: 11400000, guid: cc4e4df310c423a458bece55c4ee728b, type: 2}
+    - target: {fileID: 3136235548901145222, guid: 72679c05775436648bdda8166a18ba3a, type: 3}
       propertyPath: FollowCinemachine
       value: 
       objectReference: {fileID: 1444016835}
+    - target: {fileID: 8408872208806985638, guid: 72679c05775436648bdda8166a18ba3a, type: 3}
+      propertyPath: m_WarningMessage
+      value: "\nBinding warning: Some generic clip(s) animate transforms that are
+        already bound by a Humanoid avatar. These transforms can only be changed
+        by Humanoid clips.\n\tTransform 'clavicle_R'\n\tTransform 'hand_R'\n\tTransform
+        'upperarm_R'\n\tTransform 'forearm_R'\n\tFrom animation clip 'RHand'"
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects:

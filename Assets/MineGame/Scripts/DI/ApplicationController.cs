@@ -11,12 +11,16 @@ public class ApplicationController : LifetimeScope
 
     [SerializeField] private PlayerInput input;
 
+    protected override void OnDestroy()
+    {
+        input.Player.Disable();
+    }
     protected override void Configure(IContainerBuilder builder)
     {
         Application.targetFrameRate = 60;
-        
+
         base.Configure(builder);
-        
+
         RegisterControllers(builder);
         RegisterDatabases(builder);
         RegisterViews(builder);

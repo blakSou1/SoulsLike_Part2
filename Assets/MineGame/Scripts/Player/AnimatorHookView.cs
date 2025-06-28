@@ -1,10 +1,15 @@
 using System;
 using UnityEngine;
 
+[RequireComponent(typeof(Animator))]
 public class AnimatorHookView : MonoBehaviour
 {
-    #region param
+    #region Param
+    #region Components
     [HideInInspector] public Animator anim;
+    #endregion
+
+    #region Stats
     [HideInInspector] public bool isInteracting;
 
     [HideInInspector] public bool canRotate;
@@ -14,10 +19,11 @@ public class AnimatorHookView : MonoBehaviour
     [HideInInspector] public bool canDoCombo;
 
     [HideInInspector] public bool openDamageCollider;
+    #endregion
 
-    [HideInInspector] public bool hasLockTarget;
-
+    #region Events
     public event Action<Vector3> DeltaPositionAnimator;
+    #endregion
     #endregion
 
     private void Start()
@@ -38,11 +44,15 @@ public class AnimatorHookView : MonoBehaviour
         this.isInteracting = isInteracting;
     }
 
+    #region AnimationEvent
+    #region Move
     public void OpenCanMove()
     {
         canMove = true;
     }
+    #endregion
 
+    #region DamageCollider
     public void OpenDamageCollider()
     {
         openDamageCollider = true;
@@ -51,12 +61,16 @@ public class AnimatorHookView : MonoBehaviour
     {
         openDamageCollider = false;
     }
+    #endregion
 
+    #region Combo
     public void EnableCombo()
     {
         canDoCombo = true;
     }
+    #endregion
 
+    #region Rotation
     public void EnabledRotation()
     {
         canRotate = true;
@@ -65,4 +79,6 @@ public class AnimatorHookView : MonoBehaviour
     {
         canRotate = false;
     }
+    #endregion
+    #endregion
 }
