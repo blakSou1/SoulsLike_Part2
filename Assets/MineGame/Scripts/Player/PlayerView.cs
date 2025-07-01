@@ -53,6 +53,7 @@ public class PlayerView : MonoBehaviour
     private Rigidbody rb;
     public static AnimatorHookView animHook;
     public static ComboController comboController;
+    public KatanaIsNojn katanaIsNojn;
     #endregion
     #endregion
 
@@ -63,6 +64,7 @@ public class PlayerView : MonoBehaviour
         animHook = GetComponentInChildren<AnimatorHookView>();
         camTransform = Camera.main.transform;
         rb = GetComponent<Rigidbody>();
+        katanaIsNojn.Init(gameObject);
         #endregion
 
         #region Event
@@ -70,6 +72,8 @@ public class PlayerView : MonoBehaviour
         #endregion
 
         #region Input
+        input.Player.Crouch.started += i => katanaIsNojn.IsKatana();
+
         #region Move
         input.Player.Move.performed += i => inputMoveDirection = i.ReadValue<Vector2>();
         input.Player.Move.canceled += i => inputMoveDirection = Vector2.zero;
@@ -105,11 +109,14 @@ public class PlayerView : MonoBehaviour
     }
     private void OnDestroy()
     {
+        katanaIsNojn.OnDestroy();
+
         #region Event
         animHook.DeltaPositionAnimator -= DeltaPosition;
         #endregion
 
         #region Input
+        input.Player.Crouch.started -= i => katanaIsNojn.IsKatana();
         #region Move
         input.Player.Move.performed -= i => inputMoveDirection = i.ReadValue<Vector2>();
         input.Player.Move.canceled -= i => inputMoveDirection = Vector2.zero;
@@ -145,6 +152,8 @@ public class PlayerView : MonoBehaviour
     }
     private void FixedUpdate()
     {
+        if (animHook.isInteracting)
+            animHook.isInteracting = animHook.anim.GetBool("isInteracting");
         CheckGround();
         Movement();
     }

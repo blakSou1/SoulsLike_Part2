@@ -10,18 +10,19 @@ public class AnimatorHookView : MonoBehaviour
     #endregion
 
     #region Stats
-    [HideInInspector] public bool isInteracting;
+    public bool isInteracting;
 
-    [HideInInspector] public bool canRotate;
+    public bool canRotate;
 
-    [HideInInspector] public bool canMove;
+    public bool canMove;
 
-    [HideInInspector] public bool canDoCombo;
+    public bool canDoCombo;
 
-    [HideInInspector] public bool openDamageCollider;
+    public bool openDamageCollider;
     #endregion
 
     #region Events
+    public event Action katanaIsHook;
     public event Action<Vector3> DeltaPositionAnimator;
     #endregion
     #endregion
@@ -67,6 +68,13 @@ public class AnimatorHookView : MonoBehaviour
     public void EnableCombo()
     {
         canDoCombo = true;
+    }
+    #endregion
+
+    #region IsKatana
+    public void IsHookKatana()
+    {
+        katanaIsHook?.Invoke();
     }
     #endregion
 
