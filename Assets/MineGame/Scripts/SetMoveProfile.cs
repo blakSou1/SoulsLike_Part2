@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using UnityEditor.Animations;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 [CreateAssetMenu(menuName = "Battle/Profile")]
 public class SetMoveProfile : ScriptableObject
@@ -22,7 +23,7 @@ public class InputList
     /// <summary>
     /// кнопка ввода
     /// </summary>
-    public AtackInputs atackInputs;
+    public InputActionReference atackInputs;
 
     [Header("список состояния ввода")]
     public List<StateAction> inputStatsAction;
@@ -34,7 +35,7 @@ public class StateAction
     /// <summary>
     /// состояние ввода
     /// </summary>
-    public InputStats inputsState;
+    public InputActionPhase inputsPhase;
 
     [Header("Воспроизводимая анмиация")]
     /// <summary>

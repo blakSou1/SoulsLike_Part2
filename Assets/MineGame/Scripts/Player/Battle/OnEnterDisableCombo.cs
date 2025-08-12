@@ -2,8 +2,12 @@ using UnityEngine;
 
 public class OnEnterDisableCombo : StateMachineBehaviour
 {
-    override public void OnStateEnter(Animator anim, AnimatorStateInfo stateInfo, int layerIndex)
+    private PlayerView playerView;
+
+    override public void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
-        PlayerView.animHook.canDoCombo = false;
+        playerView ??= animator.GetComponentInParent<PlayerView>();
+
+        playerView.animHook.canDoCombo = false;
     }
 }

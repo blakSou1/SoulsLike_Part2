@@ -4,28 +4,19 @@ using UnityEngine;
 [RequireComponent(typeof(Animator))]
 public class AnimatorHookView : MonoBehaviour
 {
-    #region Param
-    #region Components
-    [HideInInspector] public Animator anim;
-    #endregion
+    public Animator anim { get; private set; }
 
-    #region Stats
-    public bool isInteracting;
+    [ReadOnly] public bool isInteracting;
 
-    public bool canRotate;
+    [ReadOnly] public bool canRotate;
 
-    public bool canMove;
+    [ReadOnly] public bool canMove;
 
-    public bool canDoCombo;
+    [ReadOnly] public bool canDoCombo;
 
-    public bool openDamageCollider;
-    #endregion
+    [ReadOnly] public bool openDamageCollider;
 
-    #region Events
-    public event Action katanaIsHook;
     public event Action<Vector3> DeltaPositionAnimator;
-    #endregion
-    #endregion
 
     private void Start()
     {
@@ -68,13 +59,6 @@ public class AnimatorHookView : MonoBehaviour
     public void EnableCombo()
     {
         canDoCombo = true;
-    }
-    #endregion
-
-    #region IsKatana
-    public void IsHookKatana()
-    {
-        katanaIsHook?.Invoke();
     }
     #endregion
 

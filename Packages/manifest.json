@@ -1,6 +1,5 @@
 {
   "dependencies": {
-    "com.cysharp.unitask": "https://github.com/Cysharp/UniTask.git?path=src/UniTask/Assets/Plugins/UniTask",
     "com.smkplus.custom-toolbar": "https://github.com/smkplus/CustomToolbar.git#master",
     "com.unity.ai.navigation": "2.0.8",
     "com.unity.cinemachine": "3.1.4",
@@ -8,18 +7,14 @@
     "com.unity.inputsystem": "1.14.0",
     "com.unity.render-pipelines.universal": "17.0.4",
     "com.unity.ugui": "2.0.0",
-    "jp.hadashikick.vcontainer": "https://github.com/hadashiA/VContainer.git?path=VContainer/Assets/VContainer#1.16.8",
     "com.unity.modules.ai": "1.0.0",
     "com.unity.modules.animation": "1.0.0",
-    "com.unity.modules.assetbundle": "1.0.0",
     "com.unity.modules.audio": "1.0.0",
-    "com.unity.modules.cloth": "1.0.0",
     "com.unity.modules.director": "1.0.0",
     "com.unity.modules.imgui": "1.0.0",
     "com.unity.modules.particlesystem": "1.0.0",
     "com.unity.modules.physics": "1.0.0",
     "com.unity.modules.ui": "1.0.0",
-    "com.unity.modules.uielements": "1.0.0",
-    "com.unity.modules.wind": "1.0.0"
+    "com.unity.modules.uielements": "1.0.0"
   }
 }
