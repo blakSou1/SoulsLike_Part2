@@ -16,7 +16,8 @@ public class LockOnComponent : IDisposable
     public ILockable currentLockable { get; private set; }
 
     [SerializeField] private LayerMask LockOnMask = 1 << 3;
-    [SerializeField] private CinemachineCamera FollowCinemachine;
+    private CinemachineCamera FollowCinemachine;
+    private CinemachineFollow Follow;
 
     private PlayerView _playerView;
 
@@ -24,6 +25,9 @@ public class LockOnComponent : IDisposable
     public void Init(PlayerView playerView)
     {
         _playerView = playerView;
+        
+        FollowCinemachine = GameObject.FindFirstObjectByType<CinemachineFollow>(FindObjectsInactive.Include).GetComponent<CinemachineCamera>();
+        Follow = FollowCinemachine.GetComponent<CinemachineFollow>();
 
         _playerView.input.Player.LockOn.started += i => LockOn();
         _playerView.input.Player.NewTargetLock.started += i =>
@@ -62,6 +66,8 @@ public class LockOnComponent : IDisposable
 
             if (currentLockable != null)
             {
+                Follow.TrackerSettings.RotationDamping = new(0, 0, 0);
+
                 FollowCinemachine.LookAt = currentLockable.GetLockOnTarget(_playerView.transform);
                 lockOn = true;
             }
@@ -70,7 +76,8 @@ public class LockOnComponent : IDisposable
     }
 
     private void DisableLockOn()
-    {
+    {        
+        Follow.TrackerSettings.RotationDamping = new(100, 100, 100);
         FollowCinemachine.LookAt = null;
         lockOn = false;
         currentLockable = null;

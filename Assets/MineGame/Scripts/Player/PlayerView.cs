@@ -6,7 +6,6 @@ public class PlayerView : MonoBehaviour
     #region Component
     public PlayerInput input{ get; private set; }
 
-    public Transform camTransform{ get; private set; }
     public Rigidbody rb{ get; private set; }
     public AnimatorHookView animHook{ get; private set; }
     [field: SerializeField]public ComboController comboController{ get; private set; }
@@ -22,12 +21,7 @@ public class PlayerView : MonoBehaviour
 
     private void Start()
     {
-        // comboController = new();
-        // _playerMovement = new();
-        // lockOnComponent = new();
-
         animHook = GetComponentInChildren<AnimatorHookView>();
-        camTransform = Camera.main.transform;
         rb = GetComponent<Rigidbody>();
 
         _playerMovement.Init(this);

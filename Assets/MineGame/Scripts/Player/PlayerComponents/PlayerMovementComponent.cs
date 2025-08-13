@@ -68,8 +68,8 @@ public class PlayerMovementComponent : IDisposable
     {
         moveAmount = Mathf.Clamp01(Mathf.Abs(inputMoveDirection.y) + Mathf.Abs(inputMoveDirection.x));
 
-        Vector3 movementDirection = _playerView.camTransform.right * inputMoveDirection.x;
-        movementDirection += _playerView.camTransform.forward * inputMoveDirection.y;
+        Vector3 movementDirection = Camera.main.transform.right * inputMoveDirection.x;
+        movementDirection += Camera.main.transform.forward * inputMoveDirection.y;
         movementDirection.Normalize();
 
         Vector3 targetVelocity;
@@ -82,14 +82,19 @@ public class PlayerMovementComponent : IDisposable
             if (_playerView.lockOnComponent.lockOn)
             {
                 if (!isSprint)
+                {
+                    HandleRotation(_playerView.transform.forward, true);
                     rotationDir = _playerView.lockOnComponent.currentLockable.GetLockOnTarget(_playerView.transform).position - _playerView.transform.position;
+                }
                 else
                 {
                     HandleRotation(rotationDir, true);
                     rotationDir = _playerView.lockOnComponent.currentLockable.GetLockOnTarget(_playerView.transform).position - _playerView.transform.position;
                 }
             }
-
+            else
+                HandleRotation(_playerView.transform.forward, true);
+                
             HandleRotation(rotationDir);
         }
 
@@ -145,14 +150,13 @@ public class PlayerMovementComponent : IDisposable
         Transform targetTransform = sprintIsLock ? rotationMesh : _playerView.transform;
 
         float moveOverride = moveAmount;
-
         if (_playerView.lockOnComponent.lockOn)
             moveOverride = 1;
 
         targetDir.Normalize();
         targetDir.y = 0;
         if (targetDir == Vector3.zero)
-            targetDir = _playerView.transform.forward;
+            targetDir = targetTransform.forward;
 
         float actualRotationSpeed = rotationSpeed;
         if (_playerView.animHook.isInteracting)
@@ -160,12 +164,13 @@ public class PlayerMovementComponent : IDisposable
 
         Quaternion tr = Quaternion.LookRotation(targetDir);
         Quaternion targetRotation = Quaternion.Slerp(
-            targetTransform.rotation, tr,
+            targetTransform.rotation,
+            tr,
             Time.deltaTime * moveOverride * actualRotationSpeed);
 
         targetTransform.rotation = targetRotation;
     }
-    
+
     private void CheckGround()
     {
         Vector3 origin = _playerView.transform.position;
