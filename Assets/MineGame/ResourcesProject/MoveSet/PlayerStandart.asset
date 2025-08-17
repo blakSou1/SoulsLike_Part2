@@ -18,5 +18,5 @@ MonoBehaviour:
     inputStatsAction:
     - inputsPhase: 2
       inputStatsAction:
-        animName: 
-        isInteracting: 0
+        animName: Atack1
+        isInteracting: 1

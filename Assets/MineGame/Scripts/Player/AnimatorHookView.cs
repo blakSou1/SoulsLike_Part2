@@ -34,6 +34,7 @@ public class AnimatorHookView : MonoBehaviour
         anim.SetBool("isInteracting", isInteracting);
         anim.CrossFade(targetAnim, 0.2f);
         this.isInteracting = isInteracting;
+        canMove = false;
     }
 
     #region AnimationEvent

@@ -66,7 +66,7 @@ public class ComboController
 
         for (int i = 0; i < combo.Length; i++)
         {
-            if (combo[i].inp.action == context.action)
+            if (combo[i].inp.action.name == context.action.name)
                 return combo[i];
         }
 
@@ -88,7 +88,7 @@ public class ComboController
         if (setMoveProfile == null) return;
 
         InputList matchingInputList = setMoveProfile.atackInputs
-            .FirstOrDefault(input => input.atackInputs.action == context.action);
+            .FirstOrDefault(input => input.atackInputs.action.name == context.action.name);
 
         if (matchingInputList == null) return;
 

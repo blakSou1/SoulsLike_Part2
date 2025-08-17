@@ -66,7 +66,8 @@ public class PlayerMovementComponent : IDisposable
 
     private void Movement()
     {
-        moveAmount = Mathf.Clamp01(Mathf.Abs(inputMoveDirection.y) + Mathf.Abs(inputMoveDirection.x));
+        float targetMoveAmount = Mathf.Clamp01(Mathf.Abs(inputMoveDirection.y) + Mathf.Abs(inputMoveDirection.x));
+        moveAmount = Mathf.Lerp(moveAmount, targetMoveAmount, Time.deltaTime / .15f);
 
         Vector3 movementDirection = Camera.main.transform.right * inputMoveDirection.x;
         movementDirection += Camera.main.transform.forward * inputMoveDirection.y;
@@ -75,7 +76,7 @@ public class PlayerMovementComponent : IDisposable
         Vector3 targetVelocity;
 
         //HANDLE ROTATION
-        if (!_playerView.animHook.isInteracting)// || animatorHook.canRotate)
+        if (!_playerView.animHook.isInteracting || _playerView.animHook.canRotate)
         {
             Vector3 rotationDir = movementDirection;
 
@@ -98,6 +99,7 @@ public class PlayerMovementComponent : IDisposable
             HandleRotation(rotationDir);
         }
 
+        //HANDLE SPEED
         if (_playerView.lockOnComponent.lockOn && !isSprint)
         {
             targetVelocity = movementSpeed * inputMoveDirection.y * _playerView.transform.forward;
@@ -107,18 +109,13 @@ public class PlayerMovementComponent : IDisposable
         {
             currentSpeed = movementSpeed;
             if (isSprint)
-            {
-                if (movementDirection == Vector3.zero)
-                {
-                    isSprint = false;
-                }
                 currentSpeed = sprintSpeed;
-            }
 
             targetVelocity = movementDirection * currentSpeed;
         }
 
-        if (_playerView.animHook.isInteracting)
+        //HANDLE ANIMATION MOVEMENT
+        if (_playerView.animHook.isInteracting && !_playerView.animHook.canMove)
             targetVelocity = deltaPosition * 1;
 
         //HANDLE MOVEMENT
@@ -207,6 +204,7 @@ public class PlayerMovementComponent : IDisposable
     private void HandleAnimations()
     {
         _playerView.animHook.anim.SetBool("isSprint", isSprint);
+        _playerView.animHook.anim.SetFloat("moveAmount", moveAmount);
 
         float f = currentSpeed;
         if (moveAmount < .4f)
