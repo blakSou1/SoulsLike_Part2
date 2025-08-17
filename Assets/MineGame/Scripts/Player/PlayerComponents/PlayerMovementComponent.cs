@@ -209,7 +209,7 @@ public class PlayerMovementComponent : IDisposable
         _playerView.animHook.anim.SetBool("isSprint", isSprint);
 
         float f = currentSpeed;
-        if (moveAmount < .1f)
+        if (moveAmount < .4f)
             f = 0;
 
         if (_playerView.lockOnComponent.lockOn && !isSprint)
@@ -232,8 +232,8 @@ public class PlayerMovementComponent : IDisposable
                         hor = -currentSpeed;
             }
 
-            _playerView.animHook.anim.SetFloat("forward", ver, .2f, Time.deltaTime);
-            _playerView.animHook.anim.SetFloat("sideways", hor, .2f, Time.deltaTime);
+            _playerView.animHook.anim.SetFloat("forward", ver, .3f, Time.deltaTime);
+            _playerView.animHook.anim.SetFloat("sideways", hor, .3f, Time.deltaTime);
         }
         else
         {
