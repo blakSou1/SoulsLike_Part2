@@ -38,11 +38,11 @@ public class PlayerMovementComponent : IDisposable
 
         _playerView.animHook.DeltaPositionAnimator += DeltaPosition;
 
-        _playerView.input.Player.Move.performed += i => inputMoveDirection = i.ReadValue<Vector2>();
-        _playerView.input.Player.Move.canceled += i => inputMoveDirection = Vector2.zero;
+        G.input.Player.Move.performed += i => inputMoveDirection = i.ReadValue<Vector2>();
+        G.input.Player.Move.canceled += i => inputMoveDirection = Vector2.zero;
 
-        _playerView.input.Player.Sprint.started += i => isSprint = true;
-        _playerView.input.Player.Sprint.canceled += i => isSprint = false;
+        G.input.Player.Sprint.started += i => isSprint = true;
+        G.input.Player.Sprint.canceled += i => isSprint = false;
 
     }
 
@@ -50,11 +50,11 @@ public class PlayerMovementComponent : IDisposable
     {
         _playerView.animHook.DeltaPositionAnimator -= DeltaPosition;
 
-        _playerView.input.Player.Move.performed -= i => inputMoveDirection = i.ReadValue<Vector2>();
-        _playerView.input.Player.Move.canceled -= i => inputMoveDirection = Vector2.zero;
+        G.input.Player.Move.performed -= i => inputMoveDirection = i.ReadValue<Vector2>();
+        G.input.Player.Move.canceled -= i => inputMoveDirection = Vector2.zero;
 
-        _playerView.input.Player.Sprint.started -= i => isSprint = true;
-        _playerView.input.Player.Sprint.canceled -= i => isSprint = false;
+        G.input.Player.Sprint.started -= i => isSprint = true;
+        G.input.Player.Sprint.canceled -= i => isSprint = false;
     }
 
     public void Update()

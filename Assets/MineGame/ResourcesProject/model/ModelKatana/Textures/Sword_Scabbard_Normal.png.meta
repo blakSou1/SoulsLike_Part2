@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 7b58fafd567102d449e897c91bc1375e
+guid: a79b11c6de0a4ea41babb34cf2bf9ba4
 timeCreated: 1460384928
 licenseType: Store
 TextureImporter:
@@ -55,10 +55,3 @@ TextureImporter:
   userData: 
   assetBundleName: 
   assetBundleVariant: 
-AssetOrigin:
-  serializedVersion: 1
-  productId: 67185
-  packageName: Katana and scabbard
-  packageVersion: 1.0
-  assetPath: Assets/Sword_Scabbard/Textures/Sword_Scabbard_Normal.png
-  uploadId: 127176

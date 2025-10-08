@@ -1,11 +1,8 @@
 using UnityEngine;
-using Zenject;
 
 public class PlayerView : MonoBehaviour
 {
     #region Component
-    public PlayerInput input{ get; private set; }
-
     public Rigidbody rb{ get; private set; }
     public AnimatorHookView animHook{ get; private set; }
     [field: SerializeField]public ComboController comboController{ get; private set; }
@@ -13,10 +10,13 @@ public class PlayerView : MonoBehaviour
     [field: SerializeField]public LockOnComponent lockOnComponent{ get; private set; }
     #endregion
 
-    [Inject]
-    private void Construct(PlayerInput input)
+    private void Awake()
     {
-        this.input = input;
+        if (G.input == null)
+        {
+            G.input = new();
+            G.input.Player.Enable();
+        }
     }
 
     private void Start()

@@ -20,32 +20,32 @@ public class ComboController
     {
         _playerView = playerView;
 
-        _playerView.input.Player.Attack.started += i => HandleAtacking(i);
-        _playerView.input.Player.Parry.started += i => HandleAtacking(i);
-        _playerView.input.Player.Ctrl.started += i => HandleAtacking(i);
+        G.input.Player.Attack.started += i => HandleAtacking(i);
+        G.input.Player.Parry.started += i => HandleAtacking(i);
+        G.input.Player.Ctrl.started += i => HandleAtacking(i);
 
-        _playerView.input.Player.Attack.performed += i => HandleAtacking(i);
-        _playerView.input.Player.Parry.performed += i => HandleAtacking(i);
-        _playerView.input.Player.Ctrl.performed += i => HandleAtacking(i);
+        G.input.Player.Attack.performed += i => HandleAtacking(i);
+        G.input.Player.Parry.performed += i => HandleAtacking(i);
+        G.input.Player.Ctrl.performed += i => HandleAtacking(i);
 
-        _playerView.input.Player.Attack.canceled += i => HandleAtacking(i);
-        _playerView.input.Player.Parry.canceled += i => HandleAtacking(i);
-        _playerView.input.Player.Ctrl.canceled += i => HandleAtacking(i);
+        G.input.Player.Attack.canceled += i => HandleAtacking(i);
+        G.input.Player.Parry.canceled += i => HandleAtacking(i);
+        G.input.Player.Ctrl.canceled += i => HandleAtacking(i);
     }
 
     public void Dispose()
     {
-        _playerView.input.Player.Attack.started -= i => HandleAtacking(i);
-        _playerView.input.Player.Parry.started -= i => HandleAtacking(i);
-        _playerView.input.Player.Ctrl.started -= i => HandleAtacking(i);
+        G.input.Player.Attack.started -= i => HandleAtacking(i);
+        G.input.Player.Parry.started -= i => HandleAtacking(i);
+        G.input.Player.Ctrl.started -= i => HandleAtacking(i);
 
-        _playerView.input.Player.Attack.performed -= i => HandleAtacking(i);
-        _playerView.input.Player.Parry.performed -= i => HandleAtacking(i);
-        _playerView.input.Player.Ctrl.performed -= i => HandleAtacking(i);
+        G.input.Player.Attack.performed -= i => HandleAtacking(i);
+        G.input.Player.Parry.performed -= i => HandleAtacking(i);
+        G.input.Player.Ctrl.performed -= i => HandleAtacking(i);
 
-        _playerView.input.Player.Attack.canceled -= i => HandleAtacking(i);
-        _playerView.input.Player.Parry.canceled -= i => HandleAtacking(i);
-        _playerView.input.Player.Ctrl.canceled -= i => HandleAtacking(i);
+        G.input.Player.Attack.canceled -= i => HandleAtacking(i);
+        G.input.Player.Parry.canceled -= i => HandleAtacking(i);
+        G.input.Player.Ctrl.canceled -= i => HandleAtacking(i);
     }
     #endregion
 

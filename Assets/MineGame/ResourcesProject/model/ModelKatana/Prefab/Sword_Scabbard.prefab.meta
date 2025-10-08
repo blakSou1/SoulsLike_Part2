@@ -1,15 +1,8 @@
 fileFormatVersion: 2
-guid: 79aa677bbe2b9a74b91bad978448ce88
+guid: 31b58ed4646175f468425830d0317dfd
 timeCreated: 1468495745
 licenseType: Store
 NativeFormatImporter:
   userData: 
   assetBundleName: 
   assetBundleVariant: 
-AssetOrigin:
-  serializedVersion: 1
-  productId: 67185
-  packageName: Katana and scabbard
-  packageVersion: 1.0
-  assetPath: Assets/Sword_Scabbard/Prefab/Sword_Scabbard.prefab
-  uploadId: 127176

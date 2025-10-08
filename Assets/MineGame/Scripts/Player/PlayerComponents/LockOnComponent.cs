@@ -29,8 +29,8 @@ public class LockOnComponent : IDisposable
         FollowCinemachine = GameObject.FindFirstObjectByType<CinemachineFollow>(FindObjectsInactive.Include).GetComponent<CinemachineCamera>();
         Follow = FollowCinemachine.GetComponent<CinemachineFollow>();
 
-        _playerView.input.Player.LockOn.started += i => LockOn();
-        _playerView.input.Player.NewTargetLock.started += i =>
+        G.input.Player.LockOn.started += i => LockOn();
+        G.input.Player.NewTargetLock.started += i =>
         {
             float inputValue = i.ReadValue<float>();
             int deadZone = 20;
@@ -43,8 +43,8 @@ public class LockOnComponent : IDisposable
 
     public void Dispose()
     {
-        _playerView.input.Player.LockOn.started -= i => LockOn();
-        _playerView.input.Player.NewTargetLock.started -= i =>
+        G.input.Player.LockOn.started -= i => LockOn();
+        G.input.Player.NewTargetLock.started -= i =>
         {
             float inputValue = i.ReadValue<float>();
             int deadZone = 20;
