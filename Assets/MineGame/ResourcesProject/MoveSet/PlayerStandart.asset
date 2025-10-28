@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   animationController: {fileID: 9100000, guid: e36ee02a42d32864182324b7072f21ce, type: 2}
   atackInputs:
-  - atackInputs: {fileID: 1120369429361536294, guid: 052faaac586de48259a63d0c4782560b, type: 3}
+  - input: {fileID: 1120369429361536294, guid: 052faaac586de48259a63d0c4782560b, type: 3}
     inputStatsAction:
     - inputsPhase: 2
       inputStatsAction:

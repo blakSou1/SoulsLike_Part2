@@ -1,14 +1,14 @@
 using UnityEngine;
 
+[RequireComponent(typeof(Rigidbody))]
 public class PlayerView : MonoBehaviour
 {
-    #region Component
-    public Rigidbody rb{ get; private set; }
-    public AnimatorHookView animHook{ get; private set; }
-    [field: SerializeField]public ComboController comboController{ get; private set; }
+    public Rigidbody Rb{ get; private set; }
+    public AnimatorHookView AnimHook { get; private set; }
+    
+    [field: SerializeField]public ComboController ComboController{ get; private set; }
     [SerializeField] private PlayerMovementComponent _playerMovement;
-    [field: SerializeField]public LockOnComponent lockOnComponent{ get; private set; }
-    #endregion
+    [field: SerializeField] public LockOnComponent LockOnComponent{ get; private set; }
 
     private void Awake()
     {
@@ -18,28 +18,26 @@ public class PlayerView : MonoBehaviour
             G.input.Player.Enable();
         }
     }
-
     private void Start()
     {
-        animHook = GetComponentInChildren<AnimatorHookView>();
-        rb = GetComponent<Rigidbody>();
+        AnimHook = GetComponentInChildren<AnimatorHookView>();
+        Rb = GetComponent<Rigidbody>();
 
         _playerMovement.Init(this);
-        lockOnComponent.Init(this);
-        comboController.Init(this);
+        LockOnComponent.Init(this);
+        ComboController.Init(this);
+    }
+    private void FixedUpdate()
+    {
+        if (AnimHook.isInteracting)
+            AnimHook.isInteracting = AnimHook.Anim.GetBool("isInteracting");
+
+        _playerMovement.Update();
     }
     private void OnDestroy()
     {
         _playerMovement.Dispose();
-        lockOnComponent.Dispose();
-        comboController.Dispose();
+        LockOnComponent.Dispose();
+        ComboController.Dispose();
     }
-    private void FixedUpdate()
-    {
-        if (animHook.isInteracting)
-            animHook.isInteracting = animHook.anim.GetBool("isInteracting");
-
-        _playerMovement.Update();
-    }
-
 }

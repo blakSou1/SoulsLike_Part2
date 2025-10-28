@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Unity.Cinemachine;
@@ -13,20 +12,22 @@ public class LockOnComponent : IDisposable
     [ReadOnly] public bool lockOn = false;
 
     private List<ILockable> _potentialTargets = new();
-    public ILockable currentLockable { get; private set; }
+    public ILockable CurrentLockable { get; private set; }
 
     [SerializeField] private LayerMask LockOnMask = 1 << 3;
     private CinemachineCamera FollowCinemachine;
     private CinemachineFollow Follow;
 
     private PlayerView _playerView;
+    private MotionWarpingSystem motionWarpingSystem;
 
     #region Life
     public void Init(PlayerView playerView)
     {
         _playerView = playerView;
-        
-        FollowCinemachine = GameObject.FindFirstObjectByType<CinemachineFollow>(FindObjectsInactive.Include).GetComponent<CinemachineCamera>();
+        motionWarpingSystem = playerView.GetComponentInChildren<MotionWarpingSystem>();
+
+        FollowCinemachine = UnityEngine.Object.FindFirstObjectByType<CinemachineFollow>(FindObjectsInactive.Include).GetComponent<CinemachineCamera>();
         Follow = FollowCinemachine.GetComponent<CinemachineFollow>();
 
         G.input.Player.LockOn.started += i => LockOn();
@@ -40,7 +41,6 @@ public class LockOnComponent : IDisposable
         };
 
     }
-
     public void Dispose()
     {
         G.input.Player.LockOn.started -= i => LockOn();
@@ -62,13 +62,14 @@ public class LockOnComponent : IDisposable
         else
         {
             FindLockableTarget();
-            currentLockable = SelecktBesttarget();
+            CurrentLockable = SelecktBesttarget();
 
-            if (currentLockable != null)
+            if (CurrentLockable != null)
             {
+                motionWarpingSystem.currentTarget = CurrentLockable.GetLockOnTarget();
                 Follow.TrackerSettings.RotationDamping = new(0, 0, 0);
 
-                FollowCinemachine.LookAt = currentLockable.GetLockOnTarget(_playerView.transform);
+                FollowCinemachine.LookAt = CurrentLockable.GetLockOnTarget();
                 lockOn = true;
             }
         }
@@ -80,7 +81,8 @@ public class LockOnComponent : IDisposable
         Follow.TrackerSettings.RotationDamping = new(100, 100, 100);
         FollowCinemachine.LookAt = null;
         lockOn = false;
-        currentLockable = null;
+        CurrentLockable = null;
+        motionWarpingSystem.currentTarget = null;
     }
     private void FindLockableTarget()
     {
@@ -102,7 +104,7 @@ public class LockOnComponent : IDisposable
             if (!IsVisible(target)) continue;
 
             float distanceScore = 1 - Mathf.Clamp01(
-                Vector3.Distance(_playerView.transform.position, target.GetLockOnTarget(_playerView.transform).position) / maxLockDistance
+                Vector3.Distance(_playerView.transform.position, target.GetLockOnTarget().position) / maxLockDistance
             );
 
             float finalScore =
@@ -119,13 +121,13 @@ public class LockOnComponent : IDisposable
     }
     private float GetAnglePriority(ILockable enemy)
     {
-        Vector3 screenPos = Camera.main.WorldToScreenPoint(enemy.GetLockOnTarget(_playerView.transform).position);
+        Vector3 screenPos = Camera.main.WorldToScreenPoint(enemy.GetLockOnTarget().position);
         Vector3 screenCenter = new(Screen.width / 2, Screen.height / 2, 0);
         return 1 - (Vector3.Distance(screenPos, screenCenter) / Screen.width);
     }
     private bool IsVisible(ILockable target)
     {
-        Vector3 dir = (target.GetLockOnTarget(_playerView.transform).position - _playerView.transform.position).normalized;
+        Vector3 dir = (target.GetLockOnTarget().position - _playerView.transform.position).normalized;
         float angle = Vector3.Angle(_playerView.transform.forward, dir);
 
         return angle <= fieldOfView * 0.5f
@@ -134,22 +136,22 @@ public class LockOnComponent : IDisposable
     private void SwitchTarget(int direction)
     {
         if (!lockOn) return;
-        if (_potentialTargets.Count == 0 || currentLockable == null) return;
+        if (_potentialTargets.Count == 0 || CurrentLockable == null) return;
 
         // Получаем текущую позицию блокировки
-        Vector3 currentLockPosition = currentLockable.GetLockOnTarget(_playerView.transform).position;
+        Vector3 currentLockPosition = CurrentLockable.GetLockOnTarget().position;
 
         // Вычисляем горизонтальный угол текущей цели
         float currentAngle = GetHorizontalAngle(currentLockPosition);
 
         // Фильтруем и сортируем потенциальные цели
         var targetsWithAngles = _potentialTargets
-            .Where(t => t != currentLockable) // Исключаем текущую цель
+            .Where(t => t != CurrentLockable) // Исключаем текущую цель
             .Select(t => new
             {
                 Target = t,
-                Position = t.GetLockOnTarget(_playerView.transform).position,
-                Angle = GetHorizontalAngle(t.GetLockOnTarget(_playerView.transform).position)
+                Position = t.GetLockOnTarget().position,
+                Angle = GetHorizontalAngle(t.GetLockOnTarget().position)
             })
             .Where(t =>
                 // Выбираем цели в нужном направлении
@@ -165,8 +167,10 @@ public class LockOnComponent : IDisposable
             var nearestTarget = targetsWithAngles.First().Target;
 
             // Обновляем текущую цель и камеру
-            currentLockable = nearestTarget;
-            FollowCinemachine.LookAt = currentLockable.GetLockOnTarget(_playerView.transform);
+            CurrentLockable = nearestTarget;
+            motionWarpingSystem.currentTarget = CurrentLockable.GetLockOnTarget();
+
+            FollowCinemachine.LookAt = CurrentLockable.GetLockOnTarget();
         }
     }
     private float GetHorizontalAngle(Vector3 targetPos)

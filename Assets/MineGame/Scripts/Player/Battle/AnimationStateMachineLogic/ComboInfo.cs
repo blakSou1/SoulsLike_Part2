@@ -9,6 +9,6 @@ public class ComboInfo : StateMachineBehaviour
     {
         playerView ??= animator.GetComponentInParent<PlayerView>();
 
-        playerView.comboController.LoadCombo(combos);
+        playerView.ComboController.LoadCombo(combos);
     }
 }

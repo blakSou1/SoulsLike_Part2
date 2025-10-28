@@ -4,35 +4,31 @@ using UnityEngine;
 [RequireComponent(typeof(Animator))]
 public class AnimatorHookView : MonoBehaviour
 {
-    public Animator anim { get; private set; }
+    public Animator Anim { get; private set; }
 
     [ReadOnly] public bool isInteracting;
-
     [ReadOnly] public bool canRotate;
-
     [ReadOnly] public bool canMove;
-
     [ReadOnly] public bool canDoCombo;
-
     [ReadOnly] public bool openDamageCollider;
 
     public event Action<Vector3> DeltaPositionAnimator;
 
     private void Start()
     {
-        anim = GetComponent<Animator>();
+        Anim = GetComponent<Animator>();
     }
 
     public void OnAnimatorMove() =>
         OnAnimatorMoveOvveride();
 
     private void OnAnimatorMoveOvveride() =>
-        DeltaPositionAnimator?.Invoke(anim.deltaPosition / Time.deltaTime);
+        DeltaPositionAnimator?.Invoke(Anim.deltaPosition / Time.deltaTime);
 
     public void PlayTargetAnimation(string targetAnim, bool isInteracting)
     {
-        anim.SetBool("isInteracting", isInteracting);
-        anim.CrossFade(targetAnim, 0.2f);
+        Anim.SetBool("isInteracting", isInteracting);
+        Anim.CrossFade(targetAnim, 0.2f);
         this.isInteracting = isInteracting;
         canMove = false;
     }

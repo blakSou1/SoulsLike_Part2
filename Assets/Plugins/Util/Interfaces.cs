@@ -14,7 +14,6 @@ public interface ILockable
     /// <summary>
     /// возвращает трансформ за которым будет заблокирован обзор камеры
     /// </summary>
-    /// <param name="from">TODO</param>
     /// <returns>трансформ - цель</returns>
-    public Transform GetLockOnTarget(Transform from);
+    public Transform GetLockOnTarget();
 }

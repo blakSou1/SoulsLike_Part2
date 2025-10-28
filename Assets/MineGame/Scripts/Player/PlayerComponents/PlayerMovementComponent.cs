@@ -36,7 +36,7 @@ public class PlayerMovementComponent : IDisposable
         _playerView = playerView;
         rotationMesh = _playerView.transform.GetChild(0);
 
-        _playerView.animHook.DeltaPositionAnimator += DeltaPosition;
+        _playerView.AnimHook.DeltaPositionAnimator += DeltaPosition;
 
         G.input.Player.Move.performed += i => inputMoveDirection = i.ReadValue<Vector2>();
         G.input.Player.Move.canceled += i => inputMoveDirection = Vector2.zero;
@@ -45,22 +45,20 @@ public class PlayerMovementComponent : IDisposable
         G.input.Player.Sprint.canceled += i => isSprint = false;
 
     }
-
+    public void Update()
+    {
+        CheckGround();
+        Movement();
+    }
     public void Dispose()
     {
-        _playerView.animHook.DeltaPositionAnimator -= DeltaPosition;
+        _playerView.AnimHook.DeltaPositionAnimator -= DeltaPosition;
 
         G.input.Player.Move.performed -= i => inputMoveDirection = i.ReadValue<Vector2>();
         G.input.Player.Move.canceled -= i => inputMoveDirection = Vector2.zero;
 
         G.input.Player.Sprint.started -= i => isSprint = true;
         G.input.Player.Sprint.canceled -= i => isSprint = false;
-    }
-
-    public void Update()
-    {
-        CheckGround();
-        Movement();
     }
     #endregion
 
@@ -76,21 +74,21 @@ public class PlayerMovementComponent : IDisposable
         Vector3 targetVelocity;
 
         //HANDLE ROTATION
-        if (!_playerView.animHook.isInteracting || _playerView.animHook.canRotate)
+        if (!_playerView.AnimHook.isInteracting || _playerView.AnimHook.canRotate)
         {
             Vector3 rotationDir = movementDirection;
 
-            if (_playerView.lockOnComponent.lockOn)
+            if (_playerView.LockOnComponent.lockOn)
             {
                 if (!isSprint)
                 {
                     HandleRotation(_playerView.transform.forward, true);
-                    rotationDir = _playerView.lockOnComponent.currentLockable.GetLockOnTarget(_playerView.transform).position - _playerView.transform.position;
+                    rotationDir = _playerView.LockOnComponent.CurrentLockable.GetLockOnTarget().position - _playerView.transform.position;
                 }
                 else
                 {
                     HandleRotation(rotationDir, true);
-                    rotationDir = _playerView.lockOnComponent.currentLockable.GetLockOnTarget(_playerView.transform).position - _playerView.transform.position;
+                    rotationDir = _playerView.LockOnComponent.CurrentLockable.GetLockOnTarget().position - _playerView.transform.position;
                 }
             }
             else
@@ -100,7 +98,7 @@ public class PlayerMovementComponent : IDisposable
         }
 
         //HANDLE SPEED
-        if (_playerView.lockOnComponent.lockOn && !isSprint)
+        if (_playerView.LockOnComponent.lockOn && !isSprint)
         {
             targetVelocity = movementSpeed * inputMoveDirection.y * _playerView.transform.forward;
             targetVelocity += movementSpeed * inputMoveDirection.x * _playerView.transform.right;
@@ -115,7 +113,7 @@ public class PlayerMovementComponent : IDisposable
         }
 
         //HANDLE ANIMATION MOVEMENT
-        if (_playerView.animHook.isInteracting && !_playerView.animHook.canMove)
+        if (_playerView.AnimHook.isInteracting && !_playerView.AnimHook.canMove)
             targetVelocity = deltaPosition * 1;
 
         //HANDLE MOVEMENT
@@ -124,7 +122,7 @@ public class PlayerMovementComponent : IDisposable
             Vector3 currentNormal = hit.normal;
             targetVelocity = Vector3.ProjectOnPlane(targetVelocity, currentNormal);
 
-            _playerView.rb.linearVelocity = targetVelocity;
+            _playerView.Rb.linearVelocity = targetVelocity;
 
             Vector3 grondedPosition = _playerView.transform.position;
             grondedPosition.y = currentPosition.y;
@@ -135,7 +133,7 @@ public class PlayerMovementComponent : IDisposable
     }
     private void DeltaPosition(Vector3 deltaPosition)
     {
-        if (_playerView.animHook.isInteracting == false)
+        if (_playerView.AnimHook.isInteracting == false)
             return;
 
         if (isGrounded && Time.deltaTime > 0)
@@ -147,7 +145,7 @@ public class PlayerMovementComponent : IDisposable
         Transform targetTransform = sprintIsLock ? rotationMesh : _playerView.transform;
 
         float moveOverride = moveAmount;
-        if (_playerView.lockOnComponent.lockOn)
+        if (_playerView.LockOnComponent.lockOn)
             moveOverride = 1;
 
         targetDir.Normalize();
@@ -156,7 +154,7 @@ public class PlayerMovementComponent : IDisposable
             targetDir = targetTransform.forward;
 
         float actualRotationSpeed = rotationSpeed;
-        if (_playerView.animHook.isInteracting)
+        if (_playerView.AnimHook.isInteracting)
             actualRotationSpeed = atackRotationSpeed;
 
         Quaternion tr = Quaternion.LookRotation(targetDir);
@@ -203,14 +201,14 @@ public class PlayerMovementComponent : IDisposable
 
     private void HandleAnimations()
     {
-        _playerView.animHook.anim.SetBool("isSprint", isSprint);
-        _playerView.animHook.anim.SetFloat("moveAmount", moveAmount);
+        _playerView.AnimHook.Anim.SetBool("isSprint", isSprint);
+        _playerView.AnimHook.Anim.SetFloat("moveAmount", moveAmount);
 
         float f = currentSpeed;
         if (moveAmount < .4f)
             f = 0;
 
-        if (_playerView.lockOnComponent.lockOn && !isSprint)
+        if (_playerView.LockOnComponent.lockOn && !isSprint)
         {
             float ver = 0;
             float hor = 0;
@@ -230,14 +228,13 @@ public class PlayerMovementComponent : IDisposable
                         hor = -currentSpeed;
             }
 
-            _playerView.animHook.anim.SetFloat("forward", ver, .3f, Time.deltaTime);
-            _playerView.animHook.anim.SetFloat("sideways", hor, .3f, Time.deltaTime);
+            _playerView.AnimHook.Anim.SetFloat("forward", ver, .3f, Time.deltaTime);
+            _playerView.AnimHook.Anim.SetFloat("sideways", hor, .3f, Time.deltaTime);
         }
         else
         {
-            _playerView.animHook.anim.SetFloat("forward", f, .1f, Time.deltaTime);
-            _playerView.animHook.anim.SetFloat("sideways", 0);
+            _playerView.AnimHook.Anim.SetFloat("forward", f, .1f, Time.deltaTime);
+            _playerView.AnimHook.Anim.SetFloat("sideways", 0);
         }
     }
-
 }

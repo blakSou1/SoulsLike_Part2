@@ -1,22 +1,10 @@
 using UnityEngine;
 
-[System.Serializable]
-public class MotionWarpSettings
-{
-    public bool warpPosition = true;
-    public bool warpRotation = true;
-    public bool ignoreVertical = false;
-    public float desiredDistance = 0f;
-
-    [Header("Ограничения")]
-    public float maxWarpDistance = 3f;
-}
-
 [RequireComponent(typeof(Animator))]
 public class MotionWarpingSystem : MonoBehaviour
 {
     private MotionWarpSettings currentSettings;
-    public Transform currentTarget;
+    [ReadOnly] public Transform currentTarget;
     public Transform EntityTransform;
 
     private Vector3 startPosition;

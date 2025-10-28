@@ -1,9 +1,8 @@
 {
   "dependencies": {
-    "com.smkplus.custom-toolbar": "https://github.com/smkplus/CustomToolbar.git#master",
     "com.unity.ai.navigation": "2.0.9",
-    "com.unity.cinemachine": "3.1.4",
-    "com.unity.ide.visualstudio": "2.0.23",
+    "com.unity.cinemachine": "3.1.5",
+    "com.unity.ide.visualstudio": "2.0.25",
     "com.unity.inputsystem": "1.14.2",
     "com.unity.render-pipelines.universal": "17.2.0",
     "com.unity.ugui": "2.0.0",

@@ -23,7 +23,7 @@ public class InputList
     /// <summary>
     /// кнопка ввода
     /// </summary>
-    public InputActionReference atackInputs;
+    public InputActionReference input;
 
     [Header("список состояния ввода")]
     public List<StateAction> inputStatsAction;

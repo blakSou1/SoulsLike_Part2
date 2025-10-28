@@ -8,6 +8,6 @@ public class OnEnterDisableCombo : StateMachineBehaviour
     {
         playerView ??= animator.GetComponentInParent<PlayerView>();
 
-        playerView.animHook.canDoCombo = false;
+        playerView.AnimHook.canDoCombo = false;
     }
 }

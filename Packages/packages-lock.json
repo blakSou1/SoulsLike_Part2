@@ -1,12 +1,5 @@
 {
   "dependencies": {
-    "com.smkplus.custom-toolbar": {
-      "version": "https://github.com/smkplus/CustomToolbar.git#master",
-      "depth": 0,
-      "source": "git",
-      "dependencies": {},
-      "hash": "c42b0f4497a2b463490b59be9026cb63b1b884f9"
-    },
     "com.unity.ai.navigation": {
       "version": "2.0.9",
       "depth": 0,
@@ -27,7 +20,7 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.cinemachine": {
-      "version": "3.1.4",
+      "version": "3.1.5",
       "depth": 0,
       "source": "registry",
       "dependencies": {
@@ -56,11 +49,11 @@
       "dependencies": {}
     },
     "com.unity.ide.visualstudio": {
-      "version": "2.0.23",
+      "version": "2.0.25",
       "depth": 0,
       "source": "registry",
       "dependencies": {
-        "com.unity.test-framework": "1.1.9"
+        "com.unity.test-framework": "1.1.31"
       },
       "url": "https://packages.unity.com"
     },

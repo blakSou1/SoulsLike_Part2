@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class Enemy : MonoBehaviour, ILockable
 {
-    public Transform GetLockOnTarget(Transform from)
+    public Transform GetLockOnTarget()
     {
         return transform;
     }

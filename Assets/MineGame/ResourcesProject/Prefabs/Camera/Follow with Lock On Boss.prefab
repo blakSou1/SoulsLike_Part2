@@ -52,7 +52,7 @@ MonoBehaviour:
     m_Value: 0
   OutputChannel: 1
   StandbyUpdate: 2
-  m_StreamingVersion: 20230301
+  m_StreamingVersion: 20241001
   m_LegacyPriority: 10
   Target:
     TrackingTarget: {fileID: 0}
@@ -96,7 +96,7 @@ MonoBehaviour:
     AngularDampingMode: 1
     RotationDamping: {x: 0, y: 0, z: 0}
     QuaternionDamping: 0.5
-  FollowOffset: {x: 0, y: 2, z: -4}
+  FollowOffset: {x: 1.3, y: 2, z: -4}
 --- !u!114 &7418814035280124644
 MonoBehaviour:
   m_ObjectHideFlags: 0

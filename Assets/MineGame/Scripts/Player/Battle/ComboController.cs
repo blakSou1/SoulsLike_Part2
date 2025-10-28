@@ -56,8 +56,8 @@ public class ComboController
         if (comb == null)
             return;
 
-        _playerView.animHook.PlayTargetAnimation(comb.animName, true);
-        _playerView.animHook.canDoCombo = false;
+        _playerView.AnimHook.PlayTargetAnimation(comb.animName, true);
+        _playerView.AnimHook.canDoCombo = false;
     }
     private ComboModel GetComboFromInp(InputAction.CallbackContext context)
     {
@@ -75,11 +75,11 @@ public class ComboController
 
     private void HandleAtacking(InputAction.CallbackContext context)
     {
-        if (!_playerView.animHook.isInteracting)
+        if (!_playerView.AnimHook.isInteracting)
             TargetSetMoveAction(context);
         else
         {
-            if (_playerView.animHook.canDoCombo)
+            if (_playerView.AnimHook.canDoCombo)
                 DoCombo(context);
         }
     }
@@ -88,7 +88,7 @@ public class ComboController
         if (setMoveProfile == null) return;
 
         InputList matchingInputList = setMoveProfile.atackInputs
-            .FirstOrDefault(input => input.atackInputs.action.name == context.action.name);
+            .FirstOrDefault(input => input.input.action.name == context.action.name);
 
         if (matchingInputList == null) return;
 
@@ -101,6 +101,6 @@ public class ComboController
 
         if (actionContainer == null) return;
 
-        _playerView.animHook.PlayTargetAnimation(actionContainer.animName, actionContainer.isInteracting);
+        _playerView.AnimHook.PlayTargetAnimation(actionContainer.animName, actionContainer.isInteracting);
     }
 }
