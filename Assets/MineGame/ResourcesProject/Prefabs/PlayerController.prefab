@@ -116,8 +116,6 @@ SkinnedMeshRenderer:
   m_RayTracingAccelStructBuildFlagsOverride: 0
   m_RayTracingAccelStructBuildFlags: 1
   m_SmallMeshCulling: 1
-  m_ForceMeshLod: -1
-  m_MeshLodSelectionBias: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -139,7 +137,6 @@ SkinnedMeshRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
@@ -252,6 +249,7 @@ GameObject:
   - component: {fileID: 8176071606003772751}
   - component: {fileID: 8692622052345352654}
   - component: {fileID: 3752706671348183117}
+  - component: {fileID: 6604321517593469092}
   m_Layer: 0
   m_Name: PlayerController
   m_TagString: Player
@@ -282,10 +280,10 @@ Rigidbody:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1528989444814572978}
-  serializedVersion: 5
+  serializedVersion: 4
   m_Mass: 1
-  m_LinearDamping: 0
-  m_AngularDamping: 0.05
+  m_Drag: 0
+  m_AngularDrag: 0.05
   m_CenterOfMass: {x: 0, y: 0, z: 0}
   m_InertiaTensor: {x: 1, y: 1, z: 1}
   m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
@@ -314,25 +312,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7440d8fc1c98f2f47b715e2fe2bcec8a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  <comboController>k__BackingField:
-    setMoveProfile: {fileID: 11400000, guid: cc4e4df310c423a458bece55c4ee728b, type: 2}
   _playerMovement:
-    isSprint: 0
     moveAmount: 0
     currentSpeed: 0
-    inputMoveDirection: {x: 0, y: 0, z: 0}
     deltaPosition: {x: 0, y: 0, z: 0}
     isGrounded: 0
     groundCheckMask:
       serializedVersion: 2
       m_Bits: 64
-  <lockOnComponent>k__BackingField:
-    maxLockDistance: 15
-    fieldOfView: 60
-    lockOn: 0
-    LockOnMask:
-      serializedVersion: 2
-      m_Bits: 8
+  <ComboController>k__BackingField:
+    setMoveProfile: {fileID: 11400000, guid: cc4e4df310c423a458bece55c4ee728b, type: 2}
 --- !u!136 &3752706671348183117
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -356,6 +345,25 @@ CapsuleCollider:
   m_Height: 1
   m_Direction: 1
   m_Center: {x: 0, y: 1, z: 0}
+--- !u!114 &6604321517593469092
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1528989444814572978}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5f3d939712201e6409d087e079e761d5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxLockDistance: 15
+  horizontalFOV: 90
+  verticalFOV: 60
+  lockOn: 0
+  LockOnMask:
+    serializedVersion: 2
+    m_Bits: 8
 --- !u!1 &1862287069028183610
 GameObject:
   m_ObjectHideFlags: 0
@@ -513,8 +521,6 @@ MeshRenderer:
   m_RayTracingAccelStructBuildFlagsOverride: 0
   m_RayTracingAccelStructBuildFlags: 1
   m_SmallMeshCulling: 1
-  m_ForceMeshLod: -1
-  m_MeshLodSelectionBias: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -536,7 +542,6 @@ MeshRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
@@ -636,8 +641,6 @@ MeshRenderer:
   m_RayTracingAccelStructBuildFlagsOverride: 0
   m_RayTracingAccelStructBuildFlags: 1
   m_SmallMeshCulling: 1
-  m_ForceMeshLod: -1
-  m_MeshLodSelectionBias: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -662,7 +665,6 @@ MeshRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0

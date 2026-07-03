@@ -1,94 +1,77 @@
 ﻿using System;
 using System.Linq;
-using UnityEngine;
-using UnityEngine.InputSystem;
 
 [Serializable]
 public class ComboController
 {
-    [SerializeField] private SetMoveProfile setMoveProfile;
+    public SetMoveProfile setMoveProfile;
 
     private ComboModel[] combo;
-
-    private PlayerView _playerView;
 
     public void LoadCombo(ComboModel[] targetCombo) =>
         combo = targetCombo;
 
     #region Life
-    public void Init(PlayerView playerView)
+    public void Init()
     {
-        _playerView = playerView;
-
-        G.input.Player.Attack.started += i => HandleAtacking(i);
-        G.input.Player.Parry.started += i => HandleAtacking(i);
-        G.input.Player.Ctrl.started += i => HandleAtacking(i);
-
-        G.input.Player.Attack.performed += i => HandleAtacking(i);
-        G.input.Player.Parry.performed += i => HandleAtacking(i);
-        G.input.Player.Ctrl.performed += i => HandleAtacking(i);
-
-        G.input.Player.Attack.canceled += i => HandleAtacking(i);
-        G.input.Player.Parry.canceled += i => HandleAtacking(i);
-        G.input.Player.Ctrl.canceled += i => HandleAtacking(i);
+        G.inputBuffer.HandleBattle += HandleAtacking;
     }
 
     public void Dispose()
     {
-        G.input.Player.Attack.started -= i => HandleAtacking(i);
-        G.input.Player.Parry.started -= i => HandleAtacking(i);
-        G.input.Player.Ctrl.started -= i => HandleAtacking(i);
-
-        G.input.Player.Attack.performed -= i => HandleAtacking(i);
-        G.input.Player.Parry.performed -= i => HandleAtacking(i);
-        G.input.Player.Ctrl.performed -= i => HandleAtacking(i);
-
-        G.input.Player.Attack.canceled -= i => HandleAtacking(i);
-        G.input.Player.Parry.canceled -= i => HandleAtacking(i);
-        G.input.Player.Ctrl.canceled -= i => HandleAtacking(i);
+        G.inputBuffer.HandleBattle -= HandleAtacking;
     }
     #endregion
 
-    public void DoCombo(InputAction.CallbackContext context)
+    public bool DoCombo(BufferedInputData context)
     {
         ComboModel comb = GetComboFromInp(context);
 
         if (comb == null)
-            return;
+            return false;
 
-        _playerView.AnimHook.PlayTargetAnimation(comb.animName, true);
-        _playerView.AnimHook.canDoCombo = false;
+        G.playerView.AnimHook.PlayTargetAnimation(comb.animName, true);
+        G.playerView.AnimHook.canDoCombo = false;
+
+        return true;
     }
-    private ComboModel GetComboFromInp(InputAction.CallbackContext context)
+    
+    public ComboModel GetComboFromInp(BufferedInputData context)
     {
         if (combo == null)
             return null;
 
-        for (int i = 0; i < combo.Length; i++)
-        {
-            if (combo[i].inp.action.name == context.action.name)
-                return combo[i];
-        }
-
-        return null;
+        return combo.FirstOrDefault(c =>
+        c.inp.action.name == context.actionName &&
+        c.inputsPhase == context.phase
+        );
     }
 
-    private void HandleAtacking(InputAction.CallbackContext context)
+    private void HandleAtacking(BufferedInputData context)
     {
-        if (!_playerView.AnimHook.isInteracting)
+        if (G.playerView.AnimHook.canDoCombo)
+            if (DoCombo(context))
+            {
+                G.inputBuffer.ClearBuffer();
+                return;
+            }
+
+        if (!G.playerView.AnimHook.isInteracting)
             TargetSetMoveAction(context);
-        else
+        else if (G.playerView.AnimHook.isInterrupt)
         {
-            if (_playerView.AnimHook.canDoCombo)
-                DoCombo(context);
+            G.inputBuffer.ClearBuffer();
+
+            TargetSetMoveAction(context);
         }
     }
-    public void TargetSetMoveAction(InputAction.CallbackContext context)
+    
+    public void TargetSetMoveAction(BufferedInputData context)
     {
         if (setMoveProfile == null) return;
 
         InputList matchingInputList = setMoveProfile.atackInputs
-            .FirstOrDefault(input => input.input.action.name == context.action.name);
+            .FirstOrDefault(input => input.input.action.name == context.actionName);
 
         if (matchingInputList == null) return;
 
@@ -101,6 +84,6 @@ public class ComboController
 
         if (actionContainer == null) return;
 
-        _playerView.AnimHook.PlayTargetAnimation(actionContainer.animName, actionContainer.isInteracting);
+        G.playerView.AnimHook.PlayTargetAnimation(actionContainer.animName, actionContainer.isInteracting);
     }
 }

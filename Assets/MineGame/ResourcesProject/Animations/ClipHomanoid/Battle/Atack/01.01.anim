@@ -615088,35 +615088,42 @@ AnimationClip:
     floatParameter: 0
     intParameter: 0
     messageOptions: 0
-  - time: 0.20833333
+  - time: 0.19166666
     functionName: StartWarpingAnimationEvent
     data: 
     objectReferenceParameter: {fileID: 0}
-    floatParameter: 0.4
+    floatParameter: 0.1
     intParameter: 0
     messageOptions: 0
-  - time: 0.30833334
-    functionName: DisableRotation
+  - time: 0.29166666
+    functionName: DisableInterrupt
     data: 
     objectReferenceParameter: {fileID: 0}
     floatParameter: 0
     intParameter: 0
     messageOptions: 0
-  - time: 0.36666667
+  - time: 0.31666666
     functionName: OpenDamageCollider
     data: 
     objectReferenceParameter: {fileID: 0}
     floatParameter: 0
     intParameter: 0
     messageOptions: 0
-  - time: 0.43333334
+  - time: 0.36666667
+    functionName: DisableRotation
+    data: 
+    objectReferenceParameter: {fileID: 0}
+    floatParameter: 0
+    intParameter: 0
+    messageOptions: 0
+  - time: 0.41666666
     functionName: StopWarpingAnimationEvent
     data: 
     objectReferenceParameter: {fileID: 0}
     floatParameter: 0
     intParameter: 0
     messageOptions: 0
-  - time: 0.48333332
+  - time: 0.5
     functionName: CloseDamageCollider
     data: 
     objectReferenceParameter: {fileID: 0}
@@ -615130,7 +615137,14 @@ AnimationClip:
     floatParameter: 0
     intParameter: 0
     messageOptions: 0
-  - time: 1.4916667
+  - time: 0.65833336
+    functionName: EnabledInterrupt
+    data: 
+    objectReferenceParameter: {fileID: 0}
+    floatParameter: 0
+    intParameter: 0
+    messageOptions: 0
+  - time: 1.5
     functionName: EnabledRotation
     data: 
     objectReferenceParameter: {fileID: 0}

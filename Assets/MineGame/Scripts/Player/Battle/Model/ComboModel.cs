@@ -5,4 +5,5 @@ public class ComboModel
 {
     public string animName;
     public InputActionReference inp;
+    public InputActionPhase inputsPhase;
 }

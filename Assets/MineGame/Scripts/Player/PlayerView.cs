@@ -1,39 +1,44 @@
+using System;
 using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody))]
 public class PlayerView : MonoBehaviour
 {
-    public Rigidbody Rb{ get; private set; }
+    public Rigidbody rb{ get; private set; }
     public AnimatorHookView AnimHook { get; private set; }
-    
-    [field: SerializeField]public ComboController ComboController{ get; private set; }
-    [SerializeField] private PlayerMovementComponent _playerMovement;
-    [field: SerializeField] public LockOnComponent LockOnComponent{ get; private set; }
 
-    private void Awake()
-    {
-        if (G.input == null)
-        {
-            G.input = new();
-            G.input.Player.Enable();
-        }
-    }
+    [NonSerialized] public LockOnComponent LockOnComponent;
+    [NonSerialized] public MotionWarpingSystem motionWarpingSystem;
+    [SerializeField] private PlayerMovementComponent _playerMovement;
+    [field: SerializeField] public ComboController ComboController{ get; private set; }
+
     private void Start()
     {
-        AnimHook = GetComponentInChildren<AnimatorHookView>();
-        Rb = GetComponent<Rigidbody>();
+        G.playerView = this;
 
-        _playerMovement.Init(this);
-        LockOnComponent.Init(this);
-        ComboController.Init(this);
+        AnimHook = GetComponentInChildren<AnimatorHookView>();
+        rb = GetComponent<Rigidbody>();
+        LockOnComponent = GetComponent<LockOnComponent>();
+        motionWarpingSystem = GetComponentInChildren<MotionWarpingSystem>();
+
+        _playerMovement.Init();
+        ComboController.Init();
     }
+
     private void FixedUpdate()
     {
+        if (!G.inputs.Player.Parry.IsPressed())
+            AnimHook.Anim.SetBool("IsBlock", false);
+        else
+            AnimHook.Anim.SetBool("IsBlock", true);
+
         if (AnimHook.isInteracting)
             AnimHook.isInteracting = AnimHook.Anim.GetBool("isInteracting");
-
-        _playerMovement.Update();
+        else
+            AnimHook.isInterrupt = true;
+        _playerMovement.Tick();
     }
+
     private void OnDestroy()
     {
         _playerMovement.Dispose();
