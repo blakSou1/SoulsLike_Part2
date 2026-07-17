@@ -573,6 +573,19 @@ BlendTree:
   m_UseAutomaticThresholds: 1
   m_NormalizedBlendValues: 0
   m_BlendType: 2
+--- !u!114 &-215460512779946195
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e1f7af53cdcfaa44aa15bbf88886aa5e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AnimationParam
+  inputStatsAction: {fileID: 11400000, guid: 6a26c90cb9f69a848a52c690aa132e2b, type: 2}
 --- !u!91 &9100000
 AnimatorController:
   m_ObjectHideFlags: 0
@@ -744,6 +757,7 @@ AnimatorState:
   - {fileID: 697099262730672394}
   m_StateMachineBehaviours:
   - {fileID: -7836035383989349873}
+  - {fileID: 4250715718824809787}
   m_Position: {x: 50, y: 50, z: 0}
   m_IKOnFeet: 0
   m_WriteDefaultValues: 1
@@ -1237,6 +1251,19 @@ AnimatorStateMachine:
   m_ExitPosition: {x: 800, y: 120, z: 0}
   m_ParentStateMachinePosition: {x: 800, y: 20, z: 0}
   m_DefaultState: {fileID: 8026929685986813750}
+--- !u!114 &4250715718824809787
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e1f7af53cdcfaa44aa15bbf88886aa5e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AnimationParam
+  inputStatsAction: {fileID: 11400000, guid: fbc2e5f51f4d63543867d9f1016091a8, type: 2}
 --- !u!1102 &4625027700065886620
 AnimatorState:
   serializedVersion: 6
@@ -1652,6 +1679,7 @@ AnimatorState:
   m_StateMachineBehaviours:
   - {fileID: 5337363086518994349}
   - {fileID: -8888317159261722522}
+  - {fileID: -215460512779946195}
   m_Position: {x: 50, y: 50, z: 0}
   m_IKOnFeet: 0
   m_WriteDefaultValues: 1

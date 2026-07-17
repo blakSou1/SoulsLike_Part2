@@ -1,13 +1,14 @@
 using UnityEngine;
 
-public class OnEnterDisableCombo : StateMachineBehaviour
+public class AnimationParam : StateMachineBehaviour
 {
+    [SerializeField] private AtackModel inputStatsAction;
     private PlayerView playerView;
 
     override public void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
         playerView ??= animator.GetComponentInParent<PlayerView>();
 
-        playerView.AnimHook.canDoCombo = false;
+        playerView.ComboController.LoadAtackParam(inputStatsAction.inputStatsAction);
     }
 }

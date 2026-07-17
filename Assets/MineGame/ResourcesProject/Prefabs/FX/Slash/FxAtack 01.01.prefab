@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 195179686800715505}
   - component: {fileID: 2111326901840806153}
   m_Layer: 10
-  m_Name: FxAtack 0.1
+  m_Name: FxAtack 01.01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4945,7 +4945,7 @@ ParticleSystemRenderer:
   m_VertexStreams: 0003040522
   m_UseCustomTrailVertexStreams: 0
   m_TrailVertexStreams: 00010304
-  m_Mesh: {fileID: 4300000, guid: d5612546e441ff54dbcdb5fd2d0770d7, type: 2}
+  m_Mesh: {fileID: 4300000, guid: 806b7674dc8081b48b8f1a7870ce9cc2, type: 2}
   m_Mesh1: {fileID: 0}
   m_Mesh2: {fileID: 0}
   m_Mesh3: {fileID: 0}

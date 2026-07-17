@@ -39,18 +39,5 @@ public class StateAction
     public InputActionPhase inputsPhase;
 
     [Header("Воспроизводимая анмиация")]
-    public ItemActionContainerModel inputStatsAction;
-}
-
-[System.Serializable]
-public class ItemActionContainerModel
-{
-    [Header("Название воспроизводимой анимации")]
-    public string animName;
-
-    [Header("Префаб с эфектом удара если нужен")]
-    public GameObject prefabSlashFX;
-
-    [Header("блокирует ли эта анимация управление игрока? да-нет")]
-    public bool isInteracting = true;
+    public AtackModel inputStatsAction;
 }

@@ -17,14 +17,8 @@ MonoBehaviour:
   - input: {fileID: 1120369429361536294, guid: 052faaac586de48259a63d0c4782560b, type: 3}
     inputStatsAction:
     - inputsPhase: 2
-      inputStatsAction:
-        animName: Atack1
-        prefabSlashFX: {fileID: 4269090632150039336, guid: 08206e2498b090a4283e519ed74cb983, type: 3}
-        isInteracting: 1
+      inputStatsAction: {fileID: 11400000, guid: 6a26c90cb9f69a848a52c690aa132e2b, type: 2}
   - input: {fileID: -1602286640526863689, guid: 052faaac586de48259a63d0c4782560b, type: 3}
     inputStatsAction:
     - inputsPhase: 2
-      inputStatsAction:
-        animName: Block
-        prefabSlashFX: {fileID: 0}
-        isInteracting: 0
+      inputStatsAction: {fileID: 11400000, guid: a75c0818a4ae66646b7906fbb0adb4e8, type: 2}

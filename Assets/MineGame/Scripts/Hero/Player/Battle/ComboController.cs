@@ -7,9 +7,12 @@ public class ComboController
     public SetMoveProfile setMoveProfile;
 
     private ComboModel[] combo;
+    [NonSerialized] public ItemActionContainerModel atackParam;
 
     public void LoadCombo(ComboModel[] targetCombo) =>
         combo = targetCombo;
+    public void LoadAtackParam(ItemActionContainerModel atackParams) =>
+    atackParam = atackParams;
 
     public bool DoCombo(BufferedInputData context)
     {
@@ -51,11 +54,11 @@ public class ComboController
 
         if (matchingStateAction == null) return;
 
-        ItemActionContainerModel actionContainer = matchingStateAction.inputStatsAction;
+        ItemActionContainerModel actionContainer = matchingStateAction.inputStatsAction.inputStatsAction;
 
         if (actionContainer == null) return;
 
-        G.playerView.characterEffectsManager.PlayWeaponFX(actionContainer);
+        G.playerView.characterEffectsManager.PlayWeaponFX();
         G.playerView.AnimHook.PlayTargetAnimation(actionContainer.animName, actionContainer.isInteracting);
     }
 }
