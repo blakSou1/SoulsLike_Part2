@@ -19,10 +19,12 @@ MonoBehaviour:
     - inputsPhase: 2
       inputStatsAction:
         animName: Atack1
+        prefabFX: {fileID: 5813254232435000529, guid: 3e3bf9a075e521b42ac30e695f794b95, type: 3}
         isInteracting: 1
   - input: {fileID: -1602286640526863689, guid: 052faaac586de48259a63d0c4782560b, type: 3}
     inputStatsAction:
     - inputsPhase: 2
       inputStatsAction:
         animName: Block
+        prefabFX: {fileID: 0}
         isInteracting: 0

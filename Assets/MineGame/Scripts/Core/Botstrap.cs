@@ -6,7 +6,7 @@ public class Botstrap : MonoBehaviour
     {
         GameBootstrapper.Init();
 
-        G.sceneLoader.Load("MainMenu");
+        //G.sceneLoader.Load("MainMenu");
     }
 }
 
@@ -25,7 +25,10 @@ public static class GameBootstrapper
         G.inputs.Enable();
 
         G.sceneLoader = CreateSimpleService<SceneLoader>();
-        G.inputBuffer = CreateSimpleService<InputBuffer>();
+
+        CreateSimpleService<InputBufferMovementExample>();
+        CreateSimpleService<InputBufferBattleExample>();
+        CreateSimpleService<InputBufferLockOnExample>();
 
         G.sceneLoader.onLoadAction = (scene, sceneMode) =>
         {
