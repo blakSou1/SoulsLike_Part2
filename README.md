@@ -10,9 +10,10 @@ This project implements a melee combat system inspired by Sekiro
 - Movement
 - Run
 - MoveSet player
+- Health system
+- Slash FX
 
 # To-do
-- Posture system
 - Perfect Deflect
 - Vertical gameplay
 - Resurrect
