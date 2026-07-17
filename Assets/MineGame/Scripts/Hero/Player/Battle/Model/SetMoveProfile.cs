@@ -49,7 +49,7 @@ public class ItemActionContainerModel
     public string animName;
 
     [Header("Префаб с эфектом удара если нужен")]
-    public GameObject prefabFX;
+    public GameObject prefabSlashFX;
 
     [Header("блокирует ли эта анимация управление игрока? да-нет")]
     public bool isInteracting = true;

@@ -2,6 +2,8 @@ using System;
 using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody))]
+[RequireComponent(typeof(HealthController))]
+[RequireComponent(typeof(LockOnComponent))]
 public class PlayerView : MonoBehaviour
 {
     public Rigidbody rb{ get; private set; }
@@ -14,7 +16,7 @@ public class PlayerView : MonoBehaviour
     [field: SerializeField] public CharacterEffectsManager characterEffectsManager { get; private set; }
     [field: SerializeField] public ComboController ComboController{ get; private set; }
 
-    private void Start()
+    private void Awake()
     {
         G.playerView = this;
 

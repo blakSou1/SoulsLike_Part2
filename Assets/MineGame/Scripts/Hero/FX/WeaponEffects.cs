@@ -5,7 +5,7 @@ public class WeaponEffects : MonoBehaviour
     //[Header("Weapon FX")]
     //public ParticleSystem normalWeaponTrail;
 
-    public void PlayWeaponFX()
+    public void PlayWeaponFX()//fire || electric
     {
         //normalWeaponTrail.Stop();
 

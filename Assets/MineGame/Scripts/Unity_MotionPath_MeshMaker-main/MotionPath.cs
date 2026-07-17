@@ -69,7 +69,7 @@ public class MotionPath : MonoBehaviour
     //랜덤 컬러 (채도 높게)
     //static Color GetRandomColor_HighSaturation()
     //{
-    //    Color OutputColor = new();
+    //    Color OutputColor = new Color();
 
     //    int HightColor = Random.Range(0, 3);
     //    if (HightColor == 0)
@@ -255,9 +255,9 @@ public class MotionPath : MonoBehaviour
     {
         if (Debug_VertInfo)
         {
-            for (int i = 0; i < MeshFilter.sharedMesh.vertices.Length; i++)
+            for (int i = 0; i < MeshFilter.mesh.vertices.Length; i++)
             {
-                Handles.Label(MeshFilter.sharedMesh.vertices[i], i.ToString() + (Debug_VertPos ? " " + MeshFilter.sharedMesh.vertices[i] : "")); //버텍스 위치들
+                Handles.Label(MeshFilter.mesh.vertices[i], i.ToString() + (Debug_VertPos ? " " + MeshFilter.mesh.vertices[i] : "")); //버텍스 위치들
             }
         }
         if (Debug_DrawTriLine)
@@ -274,7 +274,7 @@ public class MotionPath : MonoBehaviour
     {
         for (int i = 0; i < Tri.Count; i++)
         {
-            Vector3[] Test = ConvertIndexToPos(Tri[i], MeshFilter.sharedMesh.vertices);
+            Vector3[] Test = ConvertIndexToPos(Tri[i], MeshFilter.mesh.vertices);
             Handles.Label((Test[0] + Test[1] + Test[2]) / 3, i.ToString());
             Handles.DrawAAPolyLine(Test);
         }
@@ -293,12 +293,12 @@ public class MotionPath : MonoBehaviour
     //컴포넌트 붙였을 때 최초로 생성할 요소들
     void SetMesh()
     {
-        if(MeshFilter == null || MeshRenderer == null)
+        if (MeshFilter == null || MeshRenderer == null)
         {
             MeshFilter = GetComponent<MeshFilter>();
             MeshRenderer = GetComponent<MeshRenderer>();
 
-            MeshFilter.sharedMesh = new Mesh();
+            MeshFilter.mesh = new Mesh();
             MeshRenderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
             MeshRenderer.lightProbeUsage = UnityEngine.Rendering.LightProbeUsage.Off;
             MeshRenderer.reflectionProbeUsage = UnityEngine.Rendering.ReflectionProbeUsage.Off;
@@ -325,18 +325,18 @@ public class MotionPath : MonoBehaviour
             }
 
             //#endregion
-            MeshFilter.sharedMesh.Clear(); //메쉬 초기화
+            MeshFilter.mesh.Clear(); //메쉬 초기화
 
             //Vertices
-            MeshFilter.sharedMesh.vertices = SetVertPos(Ydetail).ToArray();
+            MeshFilter.mesh.vertices = SetVertPos(Ydetail).ToArray();
 
             //Triangles
             int YCount = (Ydetail > 1 ? PathCount * Ydetail - Ydetail + 1 : PathCount * Ydetail);
             List<Vector3> Tris = SetTriList(XCount, YCount); //삼각면 할당(X버텍스, Y패스갯수)
-            MeshFilter.sharedMesh.triangles = Tri_ConvertIntArray(Tris); //Vector3를 Int배열로 변환
+            MeshFilter.mesh.triangles = Tri_ConvertIntArray(Tris); //Vector3를 Int배열로 변환
 
             //UV
-            MeshFilter.sharedMesh.uv = SetUV(XCount, YCount);
+            MeshFilter.mesh.uv = SetUV(XCount, YCount);
         }
     }
 
@@ -489,13 +489,13 @@ public class MotionPath : MonoBehaviour
     public void SaveMesh(Mesh mesh)
     {
         //메쉬 새로 생성
-        Mesh NewMesh = (Mesh)UnityEngine.Object.Instantiate(mesh); 
+        Mesh NewMesh = (Mesh)UnityEngine.Object.Instantiate(mesh);
 
         //이전 경로가 아무것도 없으면 기본 프로젝트 패스로 가져옴
         string NewBeforePath = (BeforePath.Length != 0) ? BeforePath : Application.dataPath;
 
         //Path 패널 열어서 저장 경로 가져오기
-        string filePath = 
+        string filePath =
         EditorUtility.SaveFilePanelInProject("Save Mesh", "FX_Mesh_" + mesh.name, "asset", "", NewBeforePath);
         if (filePath == "") return;
 
@@ -504,8 +504,8 @@ public class MotionPath : MonoBehaviour
         BeforePath = filePath;
 
         //에셋 생성
-        AssetDatabase.CreateAsset(NewMesh, filePath);  
-        
+        AssetDatabase.CreateAsset(NewMesh, filePath);
+
         //에셋 저장
         AssetDatabase.SaveAssets();
 
@@ -532,7 +532,6 @@ public class MotionPath_Editor : Editor
 
         //애니메이터 
         EditorGUI.BeginChangeCheck();
-
         Ge.Animator = (Animator)EditorGUILayout.ObjectField(
             new GUIContent("Animator"),
             Ge.Animator,
@@ -656,10 +655,10 @@ public class MotionPath_Editor : Editor
                 //패스가 그릴 오브젝트
                 EditorGUI.BeginChangeCheck();
                 GUILayout.Space(10);
-                Ge.Animator = (Animator)EditorGUILayout.ObjectField(
-                    new GUIContent("Animator"),
-                    Ge.Animator,
-                    typeof(Animator),
+                Ge.PathInfo[Ge.SelectPath].TargetObject = (GameObject)EditorGUILayout.ObjectField(
+                    new GUIContent("Path Target"),
+                    Ge.PathInfo[Ge.SelectPath].TargetObject,
+                    typeof(GameObject),
                     true
                 );
                 if (EditorGUI.EndChangeCheck())
@@ -947,7 +946,7 @@ public class MotionPath_Editor : Editor
     #region 패스 평균이 구해서 버텍스 할당 하는기능
     void Viewer_VertexPos(MotionPath.PathInfoData GetPathInfo)
     {
-        
+
         GUIStyle VertCountFont = new GUIStyle();
         VertCountFont.normal.textColor = Color.green;
         VertCountFont.fontStyle = FontStyle.Bold;
@@ -1071,7 +1070,7 @@ public class MotionPath_Editor : Editor
         Font.alignment = TextAnchor.MiddleCenter;
         Font.fontStyle = FontStyle.Bold;
         Font.fontSize = 18;
-        
+
         if (!SameVert)
         {
 
@@ -1081,7 +1080,7 @@ public class MotionPath_Editor : Editor
         {
             GUI.backgroundColor = new Color(0.75f, 0.75f, 0.75f);
             GUILayout.BeginVertical("GroupBox");
-            GUILayout.Label(Ge.MeshFilter.sharedMesh.vertices.Length.ToString() + " Verts, " + (Ge.MeshFilter.sharedMesh.triangles.Length / 3).ToString() + " tris", Font);
+            GUILayout.Label(Ge.MeshFilter.mesh.vertices.Length.ToString() + " Verts, " + (Ge.MeshFilter.mesh.triangles.Length / 3).ToString() + " tris", Font);
             GUILayout.EndVertical();
             GUI.backgroundColor = GUI.color;
 
@@ -1097,7 +1096,7 @@ public class MotionPath_Editor : Editor
                 SceneView.RepaintAll();
             }
 
-            
+
 
             EditorGUI.BeginChangeCheck();
             Ge.CreateMeshInfo.Count_Y = EditorGUILayout.IntSlider("Count_Y", Ge.CreateMeshInfo.Count_Y, 1, 10);
@@ -1124,11 +1123,11 @@ public class MotionPath_Editor : Editor
                 Ge.GenerateMesh(Ge.PathInfo.Count, Ge.CreateMeshInfo.Count_Y, Ge.PathInfo[0].VertexPos.Length);
             }
 
-            EditorGUI.BeginDisabledGroup(Ge.MeshFilter.sharedMesh.vertices.Length == 0); //버튼 비활성화 조건
+            EditorGUI.BeginDisabledGroup(Ge.MeshFilter.mesh.vertices.Length == 0); //버튼 비활성화 조건
             {
-                if(GUILayout.Button("Save Mesh"))
+                if (GUILayout.Button("Save Mesh"))
                 {
-                    Ge.SaveMesh(Ge.MeshFilter.sharedMesh);
+                    Ge.SaveMesh(Ge.MeshFilter.mesh);
                 }
             }
             EditorGUI.EndDisabledGroup();

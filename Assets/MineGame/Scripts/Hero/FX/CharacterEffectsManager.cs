@@ -9,6 +9,6 @@ public class CharacterEffectsManager
     public virtual void PlayWeaponFX(ItemActionContainerModel actionContainer = null)
     {
         weaponEffects.PlayWeaponFX();
-        atackEffects.PlayAtackFX(actionContainer);
+        atackEffects.PlayAtackSlashFX(actionContainer);
     }
 }
