@@ -146,7 +146,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a0bf159bd664941469853a7e8b1454a7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HealthController
-  weapon: {fileID: 1033596773167475196}
 --- !u!114 &2384987755524773308
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -260,17 +259,6 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 93ce989e4deee4c4b8f5cfcbefa2d035, type: 3}
---- !u!114 &1033596773167475196 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 1979879673730591247, guid: 93ce989e4deee4c4b8f5cfcbefa2d035, type: 3}
-  m_PrefabInstance: {fileID: 1522745381087691763}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 345418a2b968a6b48b2e742306698703, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Weapon
 --- !u!4 &3793579016913244986 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 2415161812973785289, guid: 93ce989e4deee4c4b8f5cfcbefa2d035, type: 3}

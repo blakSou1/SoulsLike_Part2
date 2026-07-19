@@ -69,6 +69,12 @@ public class InputBufferBattleExample : MonoBehaviour, IService
 
         if (!G.playerView.AnimHook.isInteracting)
         {
+            if (G.playerView.finisherSystem.StartFinisher())
+            {
+                buffer.Consume();
+                return;
+            }
+
             G.playerView.ComboController.TargetSetMoveAction(buffer.Value);
             buffer.Consume();
             return;

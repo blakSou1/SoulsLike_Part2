@@ -5,6 +5,7 @@ using UnityEngine;
 public class AnimatorHookView : MonoBehaviour
 {
 	public Animator Anim { get; private set; }
+    public AnimatorOverrideController OverrideController { get; private set; }
 
     [ReadOnly] public bool isInteracting;
     [ReadOnly] public bool isInterrupt;
@@ -19,12 +20,24 @@ public class AnimatorHookView : MonoBehaviour
     public event Action IOpenDamageCollider;
 	public event Action ICloseDamageCollider;
 
-    private void Start()
+    private void Awake()
 	{
         Anim = GetComponent<Animator>();
-	}
 
-	public void OnAnimatorMove() =>
+        CreateOverrideController();
+    }
+
+    /// <summary>
+    /// Создает AnimatorOverrideController на основе текущего контроллера
+    /// </summary>
+    private void CreateOverrideController()
+    {
+        OverrideController = new AnimatorOverrideController(Anim.runtimeAnimatorController);
+
+        Anim.runtimeAnimatorController = OverrideController;
+    }
+
+    public void OnAnimatorMove() =>
 		OnAnimatorMoveOvveride();
 
 	private void OnAnimatorMoveOvveride() =>

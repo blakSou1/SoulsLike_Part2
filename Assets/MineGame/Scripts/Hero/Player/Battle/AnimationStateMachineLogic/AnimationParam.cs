@@ -11,4 +11,10 @@ public class AnimationParam : StateMachineBehaviour
 
         playerView.ComboController.LoadAtackParam(inputStatsAction.inputStatsAction);
     }
+    override public void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
+    {
+        playerView ??= animator.GetComponentInParent<PlayerView>();
+
+        playerView.ComboController.LoadAtackParam(null);
+    }
 }

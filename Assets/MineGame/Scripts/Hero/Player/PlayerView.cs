@@ -12,6 +12,7 @@ public class PlayerView : MonoBehaviour
     [NonSerialized] public LockOnComponent LockOnComponent;
     [NonSerialized] public MotionWarpingSystem motionWarpingSystem;
     [NonSerialized] public HealthController healthController;
+    [NonSerialized] public FinisherSystem finisherSystem;
     public PlayerMovementComponent playerMovementComponent;
     [field: SerializeField] public CharacterEffectsManager characterEffectsManager { get; private set; }
     [field: SerializeField] public ComboController ComboController{ get; private set; }
@@ -26,6 +27,7 @@ public class PlayerView : MonoBehaviour
         motionWarpingSystem = GetComponentInChildren<MotionWarpingSystem>();
         healthController = GetComponent<HealthController>();
         healthController.weapon = GetComponentInChildren<Weapon>();
+        finisherSystem = GetComponent<FinisherSystem>();
 
         playerMovementComponent.Init();
     }

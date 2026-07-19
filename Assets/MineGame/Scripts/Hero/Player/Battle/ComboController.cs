@@ -52,7 +52,7 @@ public class ComboController
         StateAction matchingStateAction = matchingInputList.inputStatsAction
             .FirstOrDefault(state => state.inputsPhase == context.phase);
 
-        if (matchingStateAction == null) return;
+        if (matchingStateAction == null || matchingStateAction.inputStatsAction.inputStatsAction == atackParam) return;
 
         ItemActionContainerModel actionContainer = matchingStateAction.inputStatsAction.inputStatsAction;
 
