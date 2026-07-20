@@ -18,4 +18,6 @@ public class ItemActionContainerModel
 
     [Header("блокирует ли эта анимация управление игрока? да-нет")]
     public bool isInteracting = true;
+
+    public MotionWarpSettings warpSettings;
 }

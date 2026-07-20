@@ -16,3 +16,12 @@ MonoBehaviour:
     animName: Finisher
     prefabSlashFX: {fileID: 0}
     isInteracting: 1
+    warpSettings:
+      warpPosition: 1
+      warpRotation: 1
+      ignoreVertical: 1
+      desiredDistance: 0.4
+      activationDistance: 15
+      maxWarpDistance: 15
+      snapToFinish: 1
+      targetRotationOffset: 180

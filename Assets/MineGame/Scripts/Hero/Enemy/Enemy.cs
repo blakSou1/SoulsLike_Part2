@@ -17,8 +17,6 @@ public class Enemy : MonoBehaviour, ILockable
 
         animationFinished = GetComponentInChildren<AnimationFinished>();
         animationFinished.enemy = this;
-        animationFinished.Init();
-
     }
 
     public Transform GetLockOnTarget()

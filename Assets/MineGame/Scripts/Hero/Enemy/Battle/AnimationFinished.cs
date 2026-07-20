@@ -4,43 +4,31 @@ using UnityEngine;
 public class AnimationFinished : MonoBehaviour
 {
     public string stateName = "Finisher";
-    private string nameAnimInState;
 
     [NonSerialized] public Enemy enemy;
 
     [Header("player atack")]
-    [SerializeField] private AnimationClip front;
-    [SerializeField] private AnimationClip Back;
-    [SerializeField] private AnimationClip Air;
+    [SerializeField] private AnimatorOverrideController front;
+    [SerializeField] private AnimatorOverrideController Back;
+    [SerializeField] private AnimatorOverrideController Air;
 
     [Header("enemy Hit")]
-    [SerializeField] private AnimationClip frontE;
-    [SerializeField] private AnimationClip BackE;
-    [SerializeField] private AnimationClip AirE;
+    [SerializeField] private AnimatorOverrideController frontE;
+    [SerializeField] private AnimatorOverrideController BackE;
+    [SerializeField] private AnimatorOverrideController AirE;
 
-    private AnimatorOverrideController overrideController;
-
-    public void Init()
-    {
-        overrideController = enemy.AnimHook.OverrideController;
-    }
-
-    public AnimationClip GetAnimation()//TODO
+    public AnimatorOverrideController GetAnimation()//TODO
     {
         return front;
     }
 
     public void StartAnimEnd() 
     {
-        AnimationClip clip = frontE;
+        AnimatorOverrideController clip = frontE;
 
         //ItemActionContainerModel actionContainer = null;
 
-        overrideController[nameAnimInState] = clip;
-        nameAnimInState = clip.name;
-
-        enemy.AnimHook.Anim.Rebind();
-        enemy.AnimHook.Anim.Update(0f);
+        enemy.AnimHook.Anim.runtimeAnimatorController = clip;
 
         enemy.AnimHook.PlayTargetAnimation(stateName, true);
 

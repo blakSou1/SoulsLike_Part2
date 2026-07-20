@@ -67,7 +67,7 @@ public class PlayerMovementComponent : IDisposable
 
             if (G.playerView.LockOnComponent.lockOn)
             {
-                if (!isSprint)
+                if (!isSprint || G.playerView.AnimHook.isInteracting)
                 {
                     HandleRotation(G.playerView.transform.forward, true);
                     rotationDir = G.playerView.LockOnComponent.CurrentLockable.GetLockOnTarget().position - G.playerView.transform.position;
@@ -136,14 +136,14 @@ public class PlayerMovementComponent : IDisposable
         if (G.playerView.LockOnComponent.lockOn)
             moveOverride = 1;
 
+        float actualRotationSpeed = rotationSpeed;
+        if (G.playerView.AnimHook.isInteracting)
+            actualRotationSpeed = atackRotationSpeed;
+
         targetDir.Normalize();
         targetDir.y = 0;
         if (targetDir == Vector3.zero)
             targetDir = targetTransform.forward;
-
-        float actualRotationSpeed = rotationSpeed;
-        if (G.playerView.AnimHook.isInteracting)
-            actualRotationSpeed = atackRotationSpeed;
 
         Quaternion tr = Quaternion.LookRotation(targetDir);
         Quaternion targetRotation = Quaternion.Slerp(

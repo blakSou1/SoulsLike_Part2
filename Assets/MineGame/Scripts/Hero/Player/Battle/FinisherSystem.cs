@@ -5,7 +5,6 @@ using UnityEngine;
 public class FinisherSystem : MonoBehaviour
 {
     public string stateName = "Finisher";
-    private string nameAnimInState;
 
     [Header("Finisher Settings")]
     [SerializeField] private float maxDistance = 5f;
@@ -19,8 +18,6 @@ public class FinisherSystem : MonoBehaviour
     private List<Enemy> NokautsEnemy = new List<Enemy>();
     private Enemy targetNokautEnemy = null;
     private Coroutine tickCoroutine;
-
-    private AnimatorOverrideController overrideController;
 
     #region Public Methods
 
@@ -71,12 +68,11 @@ public class FinisherSystem : MonoBehaviour
         if (targetNokautEnemy == null)
             return false;
 
-        AnimationClip clip = targetNokautEnemy.animationFinished.GetAnimation();
+        AnimatorOverrideController clip = targetNokautEnemy.animationFinished.GetAnimation();
 
         //ItemActionContainerModel actionContainer = null;
 
-        overrideController[nameAnimInState] = clip;
-        nameAnimInState = clip.name;
+        G.playerView.AnimHook.Anim.runtimeAnimatorController = clip;
 
         G.playerView.AnimHook.Anim.Rebind();
         G.playerView.AnimHook.Anim.Update(0f);
@@ -96,13 +92,6 @@ public class FinisherSystem : MonoBehaviour
     #endregion
 
     #region Unity Lifecycle
-
-    private void Start()
-    {
-        nameAnimInState = stateName;
-
-        overrideController = G.playerView.AnimHook.OverrideController;
-    }
 
     private void FixedUpdate()
     {

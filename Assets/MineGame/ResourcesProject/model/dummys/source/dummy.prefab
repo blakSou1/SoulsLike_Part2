@@ -83,10 +83,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AnimationFinished
   stateName: Finisher
-  front: {fileID: 7400000, guid: a2cfb05a785758e41bdaba7541e7bb36, type: 2}
+  front: {fileID: 22100000, guid: 141abf6f5844a24439b8f038b91422e0, type: 2}
   Back: {fileID: 0}
   Air: {fileID: 0}
-  frontE: {fileID: 7400000, guid: a2cfb05a785758e41bdaba7541e7bb36, type: 2}
+  frontE: {fileID: 22100000, guid: d99e5df5239f29046a25e1821de73d83, type: 2}
   BackE: {fileID: 0}
   AirE: {fileID: 0}
 --- !u!1 &8658935759748914538
@@ -450,6 +450,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bb607e977caf0304b8b6f7e91e076cd1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HealthEnemy
-  maxHealth: 100
+  maxHealth: 30
   damage: 0
   enemy: {fileID: 5366269613058617670}
