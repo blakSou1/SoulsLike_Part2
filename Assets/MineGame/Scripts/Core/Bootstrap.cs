@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class Botstrap : MonoBehaviour
+public class Bootstrap : MonoBehaviour
 {
     void Start()
     {

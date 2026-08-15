@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 public class Weapon : MonoBehaviour
 {
@@ -7,7 +8,8 @@ public class Weapon : MonoBehaviour
     public Action<LayerMask, Collider> TriggerExit;
     public Action IDisable;
 
-    public Collider colider;
+    [FormerlySerializedAs("colider")]
+    public Collider collider;
     private GameObject owner;
 
     private void Awake()

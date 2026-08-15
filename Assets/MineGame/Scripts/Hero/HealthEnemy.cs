@@ -17,7 +17,7 @@ public class HealthEnemy : Health
         damage += addDamage;
 
         if (maxHealth - damage < 0)
-            G.playerView.finisherSystem.Nokaut(enemy);//TODO
+            G.playerView.finisherSystem.Knockout(enemy);//TODO
     }
 
 }

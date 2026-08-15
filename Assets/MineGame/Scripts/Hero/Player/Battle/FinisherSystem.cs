@@ -15,8 +15,8 @@ public class FinisherSystem : MonoBehaviour
     [Header("Timing")]
     [SerializeField] private float tickInterval = 0.2f;
 
-    private List<Enemy> NokautsEnemy = new List<Enemy>();
-    private Enemy targetNokautEnemy = null;
+    private List<Enemy> KnockedOutEnemies = new List<Enemy>();
+    private Enemy targetKnockedOutEnemy = null;
     private Coroutine tickCoroutine;
 
     #region Public Methods
@@ -24,10 +24,10 @@ public class FinisherSystem : MonoBehaviour
     /// <summary>
     /// Добавляет врага в список для добивания
     /// </summary>
-    public void Nokaut(Enemy enemy)
+    public void Knockout(Enemy enemy)
     {
-        if (enemy != null && !NokautsEnemy.Contains(enemy))
-            NokautsEnemy.Add(enemy);
+        if (enemy != null && !KnockedOutEnemies.Contains(enemy))
+            KnockedOutEnemies.Add(enemy);
     }
 
     /// <summary>
@@ -35,12 +35,12 @@ public class FinisherSystem : MonoBehaviour
     /// </summary>
     public void IsDead(Enemy enemy)
     {
-        if (NokautsEnemy.Contains(enemy))
+        if (KnockedOutEnemies.Contains(enemy))
         {
-            NokautsEnemy.Remove(enemy);
+            KnockedOutEnemies.Remove(enemy);
 
-            if (targetNokautEnemy == enemy)
-                targetNokautEnemy = null;
+            if (targetKnockedOutEnemy == enemy)
+                targetKnockedOutEnemy = null;
         }
     }
 
@@ -49,7 +49,7 @@ public class FinisherSystem : MonoBehaviour
     /// </summary>
     public bool IsFinisherAvailable()
     {
-        return targetNokautEnemy != null;
+        return targetKnockedOutEnemy != null;
     }
 
     /// <summary>
@@ -57,7 +57,7 @@ public class FinisherSystem : MonoBehaviour
     /// </summary>
     public Enemy GetFinisherTarget()
     {
-        return targetNokautEnemy;
+        return targetKnockedOutEnemy;
     }
 
     /// <summary>
@@ -65,10 +65,10 @@ public class FinisherSystem : MonoBehaviour
     /// </summary>
     public bool StartFinisher()
     {
-        if (targetNokautEnemy == null)
+        if (targetKnockedOutEnemy == null)
             return false;
 
-        AnimatorOverrideController clip = targetNokautEnemy.animationFinished.GetAnimation();
+        AnimatorOverrideController clip = targetKnockedOutEnemy.animationFinished.GetAnimation();
 
         //ItemActionContainerModel actionContainer = null;
 
@@ -79,12 +79,12 @@ public class FinisherSystem : MonoBehaviour
 
         G.playerView.AnimHook.PlayTargetAnimation(stateName, true);
 
-        targetNokautEnemy.animationFinished.StartAnimEnd();
+        targetKnockedOutEnemy.animationFinished.StartAnimEnd();
         // TODO: Запустить анимацию добивания
         // TODO: Эффекты
 
-        NokautsEnemy.Remove(targetNokautEnemy);
-        targetNokautEnemy = null;
+        KnockedOutEnemies.Remove(targetKnockedOutEnemy);
+        targetKnockedOutEnemy = null;
 
         return true;
     }
@@ -95,7 +95,7 @@ public class FinisherSystem : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if (NokautsEnemy.Count > 0)
+        if (KnockedOutEnemies.Count > 0)
         {
             if (tickCoroutine == null)
                 tickCoroutine = StartCoroutine(TickCoroutine());
@@ -106,7 +106,7 @@ public class FinisherSystem : MonoBehaviour
             {
                 StopCoroutine(tickCoroutine);
                 tickCoroutine = null;
-                targetNokautEnemy = null;
+                targetKnockedOutEnemy = null;
             }
         }
     }
@@ -117,14 +117,14 @@ public class FinisherSystem : MonoBehaviour
 
     private IEnumerator TickCoroutine()
     {
-        while (NokautsEnemy.Count > 0)
+        while (KnockedOutEnemies.Count > 0)
         {
             yield return new WaitForSeconds(tickInterval);
 
             Enemy bestTarget = SelectBestTarget();
 
-            if (bestTarget != targetNokautEnemy)
-                targetNokautEnemy = bestTarget;
+            if (bestTarget != targetKnockedOutEnemy)
+                targetKnockedOutEnemy = bestTarget;
         }
 
         tickCoroutine = null;
@@ -140,7 +140,7 @@ public class FinisherSystem : MonoBehaviour
             Enemy lockedEnemy = G.playerView.LockOnComponent.CurrentLockable as Enemy;
 
             if (lockedEnemy != null &&
-                NokautsEnemy.Contains(lockedEnemy) &&
+                KnockedOutEnemies.Contains(lockedEnemy) &&
                 CanPerformFinisherOn(lockedEnemy))
             {
                 float distance = Vector3.Distance(transform.position, lockedEnemy.transform.position);
@@ -158,7 +158,7 @@ public class FinisherSystem : MonoBehaviour
         Enemy bestTarget = null;
         float maxScore = -Mathf.Infinity;
 
-        foreach (Enemy enemy in NokautsEnemy)
+        foreach (Enemy enemy in KnockedOutEnemies)
         {
             if (!CanPerformFinisherOn(enemy))
                 continue;
@@ -185,7 +185,7 @@ public class FinisherSystem : MonoBehaviour
     {
         if (enemy == null) return false;
 
-        if (!NokautsEnemy.Contains(enemy)) return false;
+        if (!KnockedOutEnemies.Contains(enemy)) return false;
 
         return true;
     }
@@ -275,13 +275,13 @@ public class FinisherSystem : MonoBehaviour
         Gizmos.color = Color.yellow;
         Gizmos.DrawWireSphere(transform.position, maxDistance);
 
-        if (targetNokautEnemy != null)
+        if (targetKnockedOutEnemy != null)
         {
             Gizmos.color = Color.green;
-            Gizmos.DrawLine(transform.position, targetNokautEnemy.transform.position);
+            Gizmos.DrawLine(transform.position, targetKnockedOutEnemy.transform.position);
 
             Gizmos.color = Color.red;
-            Gizmos.DrawWireSphere(targetNokautEnemy.transform.position, 0.5f);
+            Gizmos.DrawWireSphere(targetKnockedOutEnemy.transform.position, 0.5f);
         }
     }
 

@@ -20,7 +20,7 @@ public class HealthController : MonoBehaviour
         anim.IOpenDamageCollider += Open;
         anim.ICloseDamageCollider += Close;
 
-        weapon.colider.enabled = false;
+        weapon.collider.enabled = false;
     }
 
     public void OnDestroy()
@@ -65,11 +65,11 @@ public class HealthController : MonoBehaviour
 
     private void Open()
     {
-        weapon.colider.enabled = true;
+        weapon.collider.enabled = true;
     }
 
     private void Close()
     {
-        weapon.colider.enabled = false;
+        weapon.collider.enabled = false;
     }
 }
