@@ -7,9 +7,25 @@ public class AnimatorHookView : MonoBehaviour
 	public Animator Anim { get; private set; }
     public AnimatorOverrideController OverrideController { get; private set; }
 
+    /// <summary>
+    /// игрок совершает действие = true - player performs action = true
+    /// </summary>
     [ReadOnly] public bool isInteracting;
+
+    /// <summary>
+    /// текущее состояние разрешается прервать другим действием - The current state may be interrupted by another action.
+    /// </summary>
     [ReadOnly] public bool isInterrupt;
+
+    /// <summary>
+    ///  открыто окно для комбо - open combo window
+    /// </summary>
 	[ReadOnly] public bool canDoCombo;
+
+    /// <summary>
+    /// trye когда кнопка атаки отпущена и false когда удерживается
+    /// </summary>
+    [ReadOnly] public bool wasReleased;
 
     [ReadOnly] public bool canRotate;
 	[ReadOnly] public bool canMove;

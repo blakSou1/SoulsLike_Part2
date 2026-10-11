@@ -7,6 +7,7 @@ public class AtackModel : ScriptableObject
     public ItemActionContainerModel inputStatsAction;
 
 }
+
 [System.Serializable]
 public class ItemActionContainerModel
 {

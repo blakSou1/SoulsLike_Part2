@@ -40,4 +40,9 @@ public class StateAction
 
     [Header("Воспроизводимая анмиация")]
     public AtackModel inputStatsAction;
+
+    [Header("таймер удержания клавиши для входа, great = true, less = false")]
+    public bool GreatLess = true;
+    public float TimePressing = 0;
+
 }

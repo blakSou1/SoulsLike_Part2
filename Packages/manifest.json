@@ -1,6 +1,5 @@
 {
   "dependencies": {
-    "com.opalstudio.customtoolbar": "https://github.com/Alaxxxx/CustomToolbar.git",
     "com.unity.ai.navigation": "2.0.13",
     "com.unity.cinemachine": "3.1.7",
     "com.unity.ide.visualstudio": "2.0.27",

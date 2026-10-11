@@ -1,9 +1,11 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class InputBufferBattleExample : MonoBehaviour, IService
 {
     [Header("InputBuffer")]
     [SerializeField] TimedInputActionInputBuffer AttackBuffer = new();
+    [SerializeField] TimedInputActionInputBuffer OffAttackBuffer = new();
 
     [Header("InputBuffer")]
     [SerializeField] TimedInputActionInputBuffer ParryBuffer = new();
@@ -11,6 +13,8 @@ public class InputBufferBattleExample : MonoBehaviour, IService
 
     [Header("InputBuffer")]
     [SerializeField] TimedInputActionInputBuffer CtrlBuffer = new();
+
+    private float timer = 0f;
 
     public void Init()
     {
@@ -34,71 +38,63 @@ public class InputBufferBattleExample : MonoBehaviour, IService
 
     private void ComboInputSubscription()
     {
-        G.inputs.Player.Attack.started += i => IsPressedThisFrame(new(i), AttackBuffer);
-        G.inputs.Player.Parry.started += i => IsPressedThisFrame(new(i), ParryBuffer);
-        G.inputs.Player.Ctrl.started += i => IsPressedThisFrame(new(i), CtrlBuffer);
+        G.inputs.Player.Attack.started += OnAttack;
+        G.inputs.Player.Attack.canceled += OfAttack;
+        G.inputs.Player.Parry.started += OnParry;
+        G.inputs.Player.Parry.canceled += OnParryCanceled;
+    }
 
-        //G.inputs.Player.Attack.performed += i => IsPressedThisFrame(new(i), AttackBuffer);
-        //G.inputs.Player.Parry.performed += i => IsPressedThisFrame(new(i), ParryBuffer);
-        G.inputs.Player.Ctrl.performed += i => IsPressedThisFrame(new(i), CtrlBuffer);
+    private void OnAttack(InputAction.CallbackContext c)
+    {
+        G.playerView.AnimHook.wasReleased = false;
+        timer = Time.time;
+        Push(AttackBuffer, c);
+    }
+    private void OfAttack(InputAction.CallbackContext c)
+    {
+        G.playerView.AnimHook.wasReleased = true;
+        Push(OffAttackBuffer, c);
+        timer = 0f;
+    }
 
-        //G.inputs.Player.Attack.canceled += i => IsPressedThisFrame(new(i), AttackBuffer);
-        G.inputs.Player.Parry.canceled += i => IsPressedThisFrame(new(i), ParryBufferCanceled);
-        G.inputs.Player.Ctrl.canceled += i => IsPressedThisFrame(new(i), CtrlBuffer);
+    private void OnParry(InputAction.CallbackContext c) => Push(ParryBuffer, c);
+    private void OnParryCanceled(InputAction.CallbackContext c) => Push(ParryBufferCanceled, c);
+
+    private void Push(TimedInputActionInputBuffer b, InputAction.CallbackContext c)
+    {
+        if (G.playerView == null) return;
+        b.Set(new BufferedInputData(c));
+        TryConsumeBufferedBattle(b);
     }
 
     private void ComboInputUnsubscription()
     {
-        G.inputs.Player.Attack.started -= i => IsPressedThisFrame(new(i), AttackBuffer);
-        G.inputs.Player.Parry.started -= i => IsPressedThisFrame(new(i), ParryBuffer);
-        G.inputs.Player.Ctrl.started -= i => IsPressedThisFrame(new(i), CtrlBuffer);
-
-        //G.inputs.Player.Attack.performed -= i => IsPressedThisFrame(new(i), AttackBuffer);
-        //G.inputs.Player.Parry.performed -= i => IsPressedThisFrame(new(i), ParryBuffer);
-        G.inputs.Player.Ctrl.performed -= i => IsPressedThisFrame(new(i), CtrlBuffer);
-
-        //G.inputs.Player.Attack.canceled -= i => IsPressedThisFrame(new(i), AttackBuffer);
-        G.inputs.Player.Parry.canceled -= i => IsPressedThisFrame(new(i), ParryBuffer);
-        G.inputs.Player.Ctrl.canceled -= i => IsPressedThisFrame(new(i), CtrlBuffer);
+        G.inputs.Player.Attack.started -= OnAttack;
+        G.inputs.Player.Attack.canceled -= OfAttack;
+        G.inputs.Player.Parry.started -= OnParry;
+        G.inputs.Player.Parry.canceled -= OnParryCanceled;
     }
 
     void TryConsumeBufferedBattle(TimedInputActionInputBuffer buffer)
     {
-        if (!buffer.HasBuffer)
-            return;
+        if (!buffer.HasBuffer || G.playerView == null) return;
+        var hook = G.playerView.AnimHook;
 
-        if(buffer == AttackBuffer && (!G.playerView.AnimHook.isInteracting || G.playerView.AnimHook.canDoCombo || G.playerView.AnimHook.isInterrupt))
-        {
-            if (G.playerView.finisherSystem.StartFinisher())
-            {
-                buffer.Consume();
-                return;
-            }
-        }
+        // 1) финишер — только для атаки
+        if (buffer == AttackBuffer && (hook.canDoCombo || hook.isInterrupt || !hook.isInteracting))
+            if (G.playerView.finisherSystem != null && G.playerView.finisherSystem.StartFinisher())
+            { buffer.Consume(); return; }
 
-        if (!G.playerView.AnimHook.isInteracting)
-        {
-            G.playerView.ComboController.TargetSetMoveAction(buffer.Value);
-            buffer.Consume();
-            return;
-        }
+        // 2) КОМБО — раньше, чем «не в взаимодействии»   ← ключевая перестановка
+        if (hook.canDoCombo && G.playerView.ComboController.DoCombo(buffer.Value, timer))
+        { buffer.Consume(); return; }
 
-        if (G.playerView.AnimHook.canDoCombo)
-            if (G.playerView.ComboController.DoCombo(buffer.Value))
-            {
-                buffer.Consume();
-                return;
-            }
+        // 3) первый удар / смена движения — только если реально сработало
+        if ((!hook.isInteracting || hook.isInterrupt)
+            && G.playerView.ComboController.TargetSetMoveAction(buffer.Value, timer))
+        { buffer.Consume(); return; }
 
-        if (G.playerView.AnimHook.isInterrupt)
-        {
-            G.playerView.ComboController.TargetSetMoveAction(buffer.Value);
-            buffer.Consume();
-        }
+        // 4) не влезло → НЕ consume: ввод ждёт до истечения holdTime (120 мс)
     }
 
-    void IsPressedThisFrame(BufferedInputData value, TimedInputActionInputBuffer buffer) {
-        buffer.Set(value);
-        TryConsumeBufferedBattle(buffer);
-    }
 }

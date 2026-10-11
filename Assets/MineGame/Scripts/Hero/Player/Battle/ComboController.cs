@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using UnityEngine;
 
 [Serializable]
 public class ComboController
@@ -14,7 +15,7 @@ public class ComboController
     public void LoadAtackParam(ItemActionContainerModel atackParams) =>
     atackParam = atackParams;
 
-    public bool DoCombo(BufferedInputData context)
+    public bool DoCombo(BufferedInputData context, float time = 0)
     {
         ComboModel comb = GetComboFromInp(context);
 
@@ -39,26 +40,43 @@ public class ComboController
         c.inputsPhase == context.phase
         );
     }
-    
-    public void TargetSetMoveAction(BufferedInputData context)
+
+    public bool TargetSetMoveAction(BufferedInputData context, float time = 0)
     {
-        if (setMoveProfile == null) return;
+        if (setMoveProfile == null) return false;
 
-        InputList matchingInputList = setMoveProfile.atackInputs
-            .FirstOrDefault(input => input.input.action.name == context.actionName);
-            
-        if (matchingInputList == null) return;
+        var list = setMoveProfile.atackInputs.FirstOrDefault(i =>
+            i.input != null && i.input.action.name == context.actionName);  
 
-        StateAction matchingStateAction = matchingInputList.inputStatsAction
-            .FirstOrDefault(state => state.inputsPhase == context.phase);
+        if (list == null) return false;
 
-        if (matchingStateAction == null || matchingStateAction.inputStatsAction.inputStatsAction == atackParam) return;
+        var stt = list.inputStatsAction.Where(s => s.inputsPhase == context.phase).ToList();
 
-        ItemActionContainerModel actionContainer = matchingStateAction.inputStatsAction.inputStatsAction;
+        if (stt == null)
+            return false;
 
-        if (actionContainer == null) return;
+        StateAction st = null;
+        foreach (var i in stt)
+        {
+            if (i.GreatLess)
+            {
+                if (i.TimePressing < Time.time - time)
+                    st = i;
+            }
+            else
+            {
+                if (i.TimePressing > Time.time - time)
+                    st = i;
+            }
+        }
+
+        if (st == null || st.inputStatsAction?.inputStatsAction == atackParam) return false;
+
+        var ac = st.inputStatsAction.inputStatsAction;
+        if (ac == null) return false;
 
         G.playerView.characterEffectsManager.PlayWeaponFX();
-        G.playerView.AnimHook.PlayTargetAnimation(actionContainer.animName, actionContainer.isInteracting);
+        G.playerView.AnimHook.PlayTargetAnimation(ac.animName, ac.isInteracting);
+        return true;                                     
     }
 }

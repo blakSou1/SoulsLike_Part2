@@ -16,3 +16,12 @@ MonoBehaviour:
     animName: Block
     prefabSlashFX: {fileID: 0}
     isInteracting: 0
+    warpSettings:
+      warpPosition: 0
+      warpRotation: 0
+      ignoreVertical: 1
+      desiredDistance: 0
+      activationDistance: 10
+      maxWarpDistance: 3
+      snapToFinish: 0
+      targetRotationOffset: 0

@@ -1,12 +1,5 @@
 {
   "dependencies": {
-    "com.opalstudio.customtoolbar": {
-      "version": "https://github.com/Alaxxxx/CustomToolbar.git",
-      "depth": 0,
-      "source": "git",
-      "dependencies": {},
-      "hash": "7b5b3211725e1281db5054b0a8052b8fad90a2a3"
-    },
     "com.unity.ai.navigation": {
       "version": "2.0.13",
       "depth": 0,
