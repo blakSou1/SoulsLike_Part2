@@ -1,0 +1,968 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Катана · нагрев от блоков</title>
+<style>
+  :root {
+    --accent: #ff7a2a;
+    --stage: #8fa3b8;
+    --panel: rgba(10, 14, 20, .72);
+    --line: rgba(140, 170, 200, .18);
+    --text: #dfe7f1;
+    --dim: #7f8da0;
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; overflow: hidden; background: #04060a; }
+  body {
+    color: var(--text);
+    font: 13px/1.45 "Segoe UI", system-ui, -apple-system, sans-serif;
+    user-select: none;
+    -webkit-font-smoothing: antialiased;
+  }
+  #c { position: fixed; inset: 0; width: 100%; height: 100%; display: block; cursor: crosshair; }
+  .vignette {
+    position: fixed; inset: 0; pointer-events: none;
+    background:
+      radial-gradient(120% 80% at 50% 42%, transparent 40%, rgba(0,0,0,.55) 100%),
+      radial-gradient(60% 50% at 78% 30%, rgba(90,140,220,.07), transparent 70%);
+  }
+  .hud {
+    position: fixed; left: 22px; top: 22px; width: 306px;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 16px 16px 14px;
+    backdrop-filter: blur(14px);
+    box-shadow: 0 22px 60px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.05);
+  }
+  .eyebrow {
+    display: flex; align-items: center; gap: 8px;
+    font: 600 10px/1 "Segoe UI", system-ui, sans-serif;
+    letter-spacing: .17em; text-transform: uppercase; color: var(--dim);
+  }
+  .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 10px var(--accent); }
+  h1 {
+    margin: 9px 0 2px; font-size: 21px; line-height: 1.1; font-weight: 650; letter-spacing: -.01em;
+  }
+  .sub { margin: 0 0 14px; color: var(--dim); font-size: 11.5px; }
+  .readout { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 7px; }
+  #percent { font: 600 30px/1 "Segoe UI", system-ui, sans-serif; font-variant-numeric: tabular-nums; letter-spacing: -.03em; }
+  #percent small { font-size: 15px; color: var(--dim); font-weight: 500; margin-left: 1px; }
+  #stage { color: var(--stage); font-weight: 600; font-size: 12px; text-align: right; transition: color .25s; }
+  .bar {
+    position: relative; height: 9px; border-radius: 99px; overflow: hidden;
+    background: #141a22; box-shadow: inset 0 1px 3px rgba(0,0,0,.7);
+  }
+  .bar .fill {
+    position: absolute; inset: 0 auto 0 0; width: 0%;
+    background: linear-gradient(90deg, #6b7b8c 0%, #e0b56a 28%, #b98bd0 52%, #ff5a12 76%, #ffe0a0 100%);
+    background-size: 306px 100%;
+    border-radius: 99px;
+    transition: width .09s linear;
+    box-shadow: 0 0 16px rgba(255, 122, 42, .55);
+  }
+  .ticks { display: flex; justify-content: space-between; margin: 6px 1px 15px; color: #566274; font-size: 9.5px; letter-spacing: .04em; }
+  .row { display: flex; gap: 7px; }
+  button {
+    flex: 1; appearance: none; cursor: pointer;
+    background: linear-gradient(180deg, rgba(255,255,255,.07), rgba(255,255,255,.02));
+    border: 1px solid rgba(160,190,220,.22);
+    color: var(--text); border-radius: 9px; padding: 9px 6px;
+    font: 600 12px/1 "Segoe UI", system-ui, sans-serif;
+    transition: border-color .15s, background .15s, transform .06s;
+  }
+  button:hover { border-color: rgba(255,138,66,.6); background: rgba(255,122,42,.12); }
+  button:active { transform: translateY(1px); }
+  button.primary {
+    background: linear-gradient(180deg, #ff8a3d, #e2560d);
+    border-color: #ff9d5c; color: #200c02;
+    box-shadow: 0 4px 18px rgba(255,110,30,.35);
+  }
+  button.primary:hover { background: linear-gradient(180deg, #ffa15c, #ef6415); }
+  .ctrl { margin-top: 13px; }
+  .ctrl label { display: flex; justify-content: space-between; color: var(--dim); font-size: 11px; margin-bottom: 5px; }
+  input[type=range] {
+    -webkit-appearance: none; appearance: none; width: 100%; height: 16px; background: transparent; cursor: ew-resize;
+  }
+  input[type=range]::-webkit-slider-runnable-track {
+    height: 4px; border-radius: 99px;
+    background: linear-gradient(90deg, #4a5667, #ff7a2a);
+  }
+  input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none; width: 14px; height: 14px; margin-top: -5px; border-radius: 50%;
+    background: #f4f8ff; border: 2px solid #ff7a2a; box-shadow: 0 0 10px rgba(255,122,42,.6);
+  }
+  input[type=range]::-moz-range-track { height: 4px; border-radius: 99px; background: #3b4656; }
+  input[type=range]::-moz-range-thumb { width: 12px; height: 12px; border-radius: 50%; background: #fff; border: 2px solid #ff7a2a; }
+  .switch { display: flex; align-items: center; gap: 8px; color: var(--dim); font-size: 11.5px; margin-top: 11px; cursor: pointer; }
+  .switch input { accent-color: #ff7a2a; width: 14px; height: 14px; margin: 0; cursor: pointer; }
+  .hint {
+    margin-top: 13px; padding-top: 11px; border-top: 1px solid var(--line);
+    color: #657286; font-size: 10.5px; line-height: 1.55;
+  }
+  .hint b { color: #9dabbf; font-weight: 600; }
+  .combo {
+    display: inline-flex; align-items: center; gap: 5px;
+    margin-top: 10px; padding: 4px 8px; border-radius: 7px;
+    background: rgba(255,122,42,.1); border: 1px solid rgba(255,122,42,.25);
+    color: #ffb27a; font-size: 10.5px; font-variant-numeric: tabular-nums;
+    opacity: 0; transition: opacity .2s;
+  }
+  .combo.on { opacity: 1; }
+  .badge {
+    position: fixed; right: 22px; bottom: 20px; text-align: right;
+    color: #556170; font-size: 10.5px; line-height: 1.7; letter-spacing: .02em;
+  }
+  .badge b { color: #93a3b8; font-weight: 600; }
+  @media (max-width: 620px) {
+    .hud { left: 10px; right: 10px; top: 10px; width: auto; }
+    .badge { display: none; }
+  }
+</style>
+<script type="importmap">
+  { "imports": { "three": "../../lib/three.module.js" } }
+</script>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div class="vignette"></div>
+
+<div class="hud">
+  <div class="eyebrow"><span class="dot"></span> Katana · URP shader preview</div>
+  <h1>Нагрев от блоков</h1>
+  <p class="sub">Клинок копит тепло от ударов в блок и медленно остывает.</p>
+
+  <div class="readout">
+    <div id="percent">0<small>%</small></div>
+    <div id="stage">Холодная сталь</div>
+  </div>
+  <div class="bar"><div class="fill" id="fill"></div></div>
+  <div class="ticks"><span>0</span><span>побежалость</span><span>раскал</span><span>100</span></div>
+
+  <div class="row">
+    <button class="primary" id="blockBtn">Блок <span style="opacity:.6">Space</span></button>
+    <button id="parryBtn">Парирование</button>
+  </div>
+
+  <div class="ctrl">
+    <label>Тепло вручную <span id="heatVal">0%</span></label>
+    <input type="range" id="heatSlider" min="0" max="100" value="0">
+  </div>
+
+  <label class="switch"><input type="checkbox" id="coolChk" checked> Авто-остывание</label>
+  <div class="combo" id="combo">серия <b id="comboVal">×1.0</b></div>
+
+  <div class="hint">
+    <b>Space</b> — блок · <b>Shift+Space</b> — парирование · <b>R</b> — остудить<br>
+    Или кликните прямо по клинку. Серия ударов греет сильнее.
+  </div>
+</div>
+
+<div class="badge">
+  <b>Katana/HeatBlade</b> · Unity URP<br>
+  превью логики: тепло → цвет → свечение
+</div>
+
+<script type="module">
+import * as THREE from 'three';
+
+// ---------------------------------------------------------------- constants
+const BLADE_LEN   = 1.72;
+const BLADE_WIDTH = 0.098;
+const BLADE_THICK = 0.017;
+const SORI        = 0.15;
+const SEGMENTS    = 56;
+
+const clamp01 = v => Math.min(1, Math.max(0, v));
+const lerp = (a, b, t) => a + (b - a) * t;
+
+// ---------------------------------------------------------------- renderer
+const canvas = document.getElementById('c');
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance' });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.15;
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.setClearColor(0x04060a, 1);
+
+const scene = new THREE.Scene();
+scene.fog = new THREE.FogExp2(0x04060a, 0.055);
+
+const camera = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 0.1, 60);
+const camHome = new THREE.Vector3(2.65, 1.5, 3.05);
+const camLook = new THREE.Vector3(0, 1.22, 0);
+camera.position.copy(camHome);
+camera.lookAt(camLook);
+
+// ---------------------------------------------------------------- textures
+function canvasTex(w, h, draw) {
+  const c = document.createElement('canvas');
+  c.width = w; c.height = h;
+  draw(c.getContext('2d'), w, h);
+  const t = new THREE.CanvasTexture(c);
+  t.colorSpace = THREE.SRGBColorSpace;
+  return t;
+}
+
+const dotTex = canvasTex(64, 64, (g, w, h) => {
+  const r = g.createRadialGradient(w/2, h/2, 0, w/2, h/2, w/2);
+  r.addColorStop(0, 'rgba(255,255,255,1)');
+  r.addColorStop(0.35, 'rgba(255,255,255,.85)');
+  r.addColorStop(1, 'rgba(255,255,255,0)');
+  g.fillStyle = r; g.fillRect(0, 0, w, h);
+});
+
+const glowTex = canvasTex(256, 256, (g, w, h) => {
+  const r = g.createRadialGradient(w/2, h/2, 0, w/2, h/2, w/2);
+  r.addColorStop(0.0, 'rgba(255,255,255,.95)');
+  r.addColorStop(0.18, 'rgba(255,220,170,.55)');
+  r.addColorStop(0.45, 'rgba(255,140,60,.2)');
+  r.addColorStop(1.0, 'rgba(255,90,20,0)');
+  g.fillStyle = r; g.fillRect(0, 0, w, h);
+});
+
+function makeWrapTexture() {
+  return canvasTex(256, 256, (g, w, h) => {
+    g.fillStyle = '#141a24'; g.fillRect(0, 0, w, h);
+    g.strokeStyle = '#cbbfa2'; g.lineWidth = 9; g.lineCap = 'round';
+    for (let i = -3; i < 10; i++) {
+      g.beginPath(); g.moveTo(i * 32, -20); g.lineTo(i * 32 + 140, h + 20); g.stroke();
+      g.beginPath(); g.moveTo(i * 32, h + 20); g.lineTo(i * 32 + 140, -20); g.stroke();
+    }
+    g.globalAlpha = 0.18; g.fillStyle = '#000';
+    g.fillRect(0, 0, w, 18); g.fillRect(0, h - 18, w, 18);
+    g.globalAlpha = 1;
+  });
+}
+
+function makeEnvTexture() {
+  const t = canvasTex(1024, 512, (g, w, h) => {
+    const grad = g.createLinearGradient(0, 0, 0, h);
+    grad.addColorStop(0.0, '#0a111d');
+    grad.addColorStop(0.42, '#203044');
+    grad.addColorStop(0.52, '#0d131c');
+    grad.addColorStop(1.0, '#04060a');
+    g.fillStyle = grad; g.fillRect(0, 0, w, h);
+
+    let r = g.createRadialGradient(250, 140, 8, 250, 140, 190);
+    r.addColorStop(0, 'rgba(255,232,190,.8)');
+    r.addColorStop(0.2, 'rgba(255,180,110,.35)');
+    r.addColorStop(1, 'rgba(0,0,0,0)');
+    g.fillStyle = r; g.fillRect(0, 0, w, h);
+
+    r = g.createRadialGradient(790, 190, 8, 790, 190, 230);
+    r.addColorStop(0, 'rgba(150,190,255,.6)');
+    r.addColorStop(0.25, 'rgba(70,110,190,.25)');
+    r.addColorStop(1, 'rgba(0,0,0,0)');
+    g.fillStyle = r; g.fillRect(0, 0, w, h);
+
+    g.fillStyle = 'rgba(120,170,255,.35)';
+    g.fillRect(80, 330, 380, 6);
+    g.fillStyle = 'rgba(255,170,90,.25)';
+    g.fillRect(620, 360, 300, 4);
+  });
+  t.mapping = THREE.EquirectangularReflectionMapping;
+  return t;
+}
+
+const envTex = makeEnvTexture();
+const pmrem = new THREE.PMREMGenerator(renderer);
+scene.environment = pmrem.fromEquirectangular(envTex).texture;
+envTex.dispose();
+pmrem.dispose();
+
+// ---------------------------------------------------------------- lights
+const hemi = new THREE.HemisphereLight(0x9dc0ff, 0x080a0e, 0.22);
+scene.add(hemi);
+
+const key = new THREE.DirectionalLight(0xfff2df, 2.9);
+key.position.set(3.2, 6.2, 4.0);
+key.castShadow = true;
+key.shadow.mapSize.set(2048, 2048);
+key.shadow.camera.left = -3.6;
+key.shadow.camera.right = 3.6;
+key.shadow.camera.top = 5.2;
+key.shadow.camera.bottom = -5.2;
+key.shadow.camera.near = 0.5;
+key.shadow.camera.far = 16;
+key.shadow.bias = -0.0004;
+key.shadow.normalBias = 0.02;
+scene.add(key);
+scene.add(key.target);
+key.target.position.set(0, 1.2, 0);
+
+const rim = new THREE.DirectionalLight(0x7fa8ff, 0.85);
+rim.position.set(-4.2, 3.2, -3.2);
+scene.add(rim);
+rim.target.position.set(0, 1.4, 0);
+scene.add(rim.target);
+
+const heatLight = new THREE.PointLight(0xff5a12, 0, 5.5, 2);
+heatLight.position.set(0, 1.7, 0.35);
+
+// ---------------------------------------------------------------- ground
+const groundMat = new THREE.MeshStandardMaterial({
+  color: 0x090b10, roughness: 0.48, metalness: 0.22, envMapIntensity: 0.18
+});
+const ground = new THREE.Mesh(new THREE.CircleGeometry(9, 96), groundMat);
+ground.rotation.x = -Math.PI / 2;
+ground.receiveShadow = true;
+scene.add(ground);
+
+const groundGlow = new THREE.Mesh(
+  new THREE.CircleGeometry(2.6, 64),
+  new THREE.MeshBasicMaterial({
+    map: canvasTex(256, 256, (g, w, h) => {
+      const r = g.createRadialGradient(w/2, h/2, 0, w/2, h/2, w/2);
+      r.addColorStop(0, 'rgba(255,110,32,.30)');
+      r.addColorStop(0.45, 'rgba(255,70,20,.07)');
+      r.addColorStop(1, 'rgba(0,0,0,0)');
+      g.fillStyle = r; g.fillRect(0, 0, w, h);
+    }),
+    transparent: true, depthWrite: false, blending: THREE.AdditiveBlending
+  })
+);
+groundGlow.rotation.x = -Math.PI / 2;
+groundGlow.position.y = 0.002;
+scene.add(groundGlow);
+
+// мягкая контактная тень под парящей катаной
+const contactShadow = new THREE.Mesh(
+  new THREE.PlaneGeometry(1.6, 1.6),
+  new THREE.MeshBasicMaterial({
+    map: canvasTex(256, 256, (g, w, h) => {
+      const r = g.createRadialGradient(w/2, h/2, 0, w/2, h/2, w/2);
+      r.addColorStop(0, 'rgba(0,0,0,.85)');
+      r.addColorStop(0.40, 'rgba(0,0,0,.40)');
+      r.addColorStop(1, 'rgba(0,0,0,0)');
+      g.fillStyle = r; g.fillRect(0, 0, w, h);
+    }),
+    transparent: true, depthWrite: false, opacity: 0.85
+  })
+);
+contactShadow.rotation.x = -Math.PI / 2;
+contactShadow.position.set(0, 0.004, 0);
+contactShadow.renderOrder = 1;
+scene.add(contactShadow);
+
+// ---------------------------------------------------------------- katana
+function buildBladeGeometry() {
+  const pos = [], heatUv = [], uv = [], idx = [];
+
+  const ringAt = (t) => {
+    const y = t * BLADE_LEN;
+    const cx = -SORI * t * t;
+    const tip = t < 0.88 ? 1 : 1 - 0.9 * Math.pow((t - 0.88) / 0.12, 1.35);
+    const w = BLADE_WIDTH * (1 - 0.10 * t) * tip;
+    const th = BLADE_THICK * (1 - 0.42 * t) * tip;
+    // u: 0 — кромка, 0.25 — верхняя грань, 0.5 — обух, 0.75 — нижняя грань
+    const cross = [
+      [ 0.50,  0.00, 0.00],
+      [ 0.10,  0.50, 0.25],
+      [-0.50,  0.00, 0.50],
+      [ 0.10, -0.50, 0.75],
+      [ 0.50,  0.00, 1.00],
+    ];
+    return { y, cx, w, th, cross };
+  };
+
+  const faces = [[0, 1], [1, 2], [2, 3], [3, 4]];
+
+  for (const [ka, kb] of faces) {
+    const base = pos.length / 3;
+    for (let s = 0; s <= SEGMENTS; s++) {
+      const t = s / SEGMENTS;
+      const r = ringAt(t);
+      for (const k of [ka, kb]) {
+        const [ox, oz, u] = r.cross[k];
+        pos.push(r.cx + ox * r.w, r.y, oz * r.th);
+        heatUv.push(u, t);
+        uv.push(u, t);
+      }
+    }
+    for (let s = 0; s < SEGMENTS; s++) {
+      const a = base + s * 2;
+      const b = a + 1;
+      const c = a + 2;
+      const d = a + 3;
+      idx.push(a, c, d, a, d, b);
+    }
+  }
+
+  // торец острия
+  const tipRing = ringAt(1);
+  const centerIdx = pos.length / 3;
+  pos.push(tipRing.cx, tipRing.y, 0);
+  heatUv.push(0.25, 1);
+  uv.push(0.25, 1);
+  const ringStart = pos.length / 3;
+  for (let k = 0; k < 4; k++) {
+    const [ox, oz, u] = tipRing.cross[k];
+    pos.push(tipRing.cx + ox * tipRing.w, tipRing.y, oz * tipRing.th);
+    heatUv.push(u, 1);
+    uv.push(u, 1);
+  }
+  for (let k = 0; k < 4; k++) {
+    idx.push(ringStart + k, ringStart + ((k + 1) % 4), centerIdx);
+  }
+
+  const g = new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+  g.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2));
+  g.setAttribute('aHeatUv', new THREE.Float32BufferAttribute(heatUv, 2));
+  g.setIndex(idx);
+  g.computeVertexNormals();
+  return g;
+}
+
+// ---------------------------------------------------------------- heat-driven blade material
+const heatUniforms = {
+  uHeat:        { value: 0 },
+  uFlash:       { value: 0 },
+  uTime:        { value: 0 },
+  uHotLow:      { value: new THREE.Color(0x7a1602).convertSRGBToLinear() },
+  uHotMid:      { value: new THREE.Color(0xff5a08).convertSRGBToLinear() },
+  uHotHigh:     { value: new THREE.Color(0xffd9a0).convertSRGBToLinear() },
+  uEmissive:    { value: 5.0 },
+  uHamonLine:   { value: 0.17 },
+  uHamonWidth:  { value: 0.055 },
+  uRimPower:    { value: 2.2 },
+  uRimBoost:    { value: 1.0 },
+  uTemper:      { value: 0.45 },
+  uShimmer:     { value: 0.4 },
+};
+
+const bladeMat = new THREE.MeshStandardMaterial({
+  color: 0xdfe7f2,
+  metalness: 1.0,
+  roughness: 0.27,
+  envMapIntensity: 0.7,
+  emissive: 0x000000,
+});
+
+bladeMat.onBeforeCompile = (shader) => {
+  Object.assign(shader.uniforms, heatUniforms);
+
+  shader.vertexShader = shader.vertexShader
+    .replace('#include <common>', `#include <common>
+      attribute vec2 aHeatUv;
+      varying vec2 vHeatUv;
+      varying vec3 vHeatPos;
+      varying vec3 vHeatNormal;`)
+    .replace('#include <begin_vertex>', `#include <begin_vertex>
+      vHeatUv = aHeatUv;
+      vHeatPos = (modelMatrix * vec4(transformed, 1.0)).xyz;
+      vHeatNormal = normalize(mat3(modelMatrix) * objectNormal);`);
+
+  shader.fragmentShader = shader.fragmentShader
+    .replace('#include <common>', `#include <common>
+      varying vec2 vHeatUv;
+      varying vec3 vHeatPos;
+      varying vec3 vHeatNormal;
+      uniform float uHeat, uFlash, uTime, uEmissive, uHamonLine, uHamonWidth, uRimPower, uRimBoost, uTemper, uShimmer;
+      uniform vec3 uHotLow, uHotMid, uHotHigh;
+
+      float kh21(vec2 p) {
+        p = fract(p * vec2(123.34, 456.21));
+        p += dot(p, p + 45.32);
+        return fract(p.x * p.y);
+      }
+      float kvn(vec2 p) {
+        vec2 i = floor(p), f = fract(p);
+        f = f * f * (3.0 - 2.0 * f);
+        float a = kh21(i);
+        float b = kh21(i + vec2(1.0, 0.0));
+        float c = kh21(i + vec2(0.0, 1.0));
+        float d = kh21(i + vec2(1.0, 1.0));
+        return mix(mix(a, b, f.x), mix(c, d, f.x), f.y);
+      }
+      float kfbm(vec2 p) {
+        return 0.60 * kvn(p) + 0.28 * kvn(p * 2.03 + 17.1) + 0.12 * kvn(p * 4.01 + 3.7);
+      }
+      vec3 temperTint(float h) {
+        vec3 t = vec3(1.0);
+        t = mix(t, vec3(1.00, 0.82, 0.44), smoothstep(0.04, 0.18, h));
+        t = mix(t, vec3(0.88, 0.50, 0.22), smoothstep(0.18, 0.30, h));
+        t = mix(t, vec3(0.62, 0.34, 0.70), smoothstep(0.30, 0.44, h));
+        t = mix(t, vec3(0.30, 0.46, 0.92), smoothstep(0.44, 0.60, h));
+        t = mix(t, vec3(0.34, 0.30, 0.30), smoothstep(0.62, 0.82, h));
+        return t;
+      }
+      vec3 heatEmission(float h) {
+        float e = clamp((h - 0.40) / 0.60, 0.0, 1.0);
+        vec3 c = mix(uHotLow, uHotMid, smoothstep(0.0, 0.55, e));
+        c = mix(c, uHotHigh, smoothstep(0.55, 1.0, e));
+        return c * pow(e, 1.7);
+      }
+      float hamonMask(vec2 uv) {
+        float across = min(uv.x, 1.0 - uv.x);
+        float wave = kfbm(vec2(uv.y * 9.0, uv.x * 2.3));
+        float line = abs(across - (uHamonLine + (wave - 0.5) * 0.11));
+        return 1.0 - smoothstep(0.0, max(uHamonWidth, 1e-4), line);
+      }`)
+    .replace('#include <color_fragment>', `#include <color_fragment>
+      {
+        float h = clamp(uHeat, 0.0, 1.0);
+        vec3 tint = temperTint(h);
+        diffuseColor.rgb = mix(diffuseColor.rgb, diffuseColor.rgb * tint, uTemper * h);
+
+        // раскалённый металл уходит в тёплый оттенок — иначе синие отражения
+        // среды дают «неоново-розовый» клинок
+        diffuseColor.rgb = mix(diffuseColor.rgb, diffuseColor.rgb * vec3(1.0, 0.56, 0.30),
+                               smoothstep(0.55, 1.0, h) * 0.55);
+
+        // лёгкие продольные полосы полировки
+        float streak = 0.94 + 0.06 * kvn(vec2(vHeatUv.y * 130.0, vHeatUv.x * 7.0));
+        diffuseColor.rgb *= streak;
+      }`)
+    .replace('#include <roughnessmap_fragment>', `#include <roughnessmap_fragment>
+      roughnessFactor = mix(roughnessFactor, 0.40, smoothstep(0.35, 1.0, uHeat) * 0.55);`)
+    .replace('#include <emissivemap_fragment>', `#include <emissivemap_fragment>
+      {
+        float h = clamp(uHeat, 0.0, 1.0);
+        vec3 hot = heatEmission(h);
+        float hamon = hamonMask(vHeatUv);
+        float across = min(vHeatUv.x, 1.0 - vHeatUv.x);
+        float edgeZone = 1.0 - smoothstep(0.0, 0.11, across);
+        float tip = smoothstep(0.30, 1.0, vHeatUv.y);
+        vec3 V = normalize(cameraPosition - vHeatPos);
+        float rim = pow(1.0 - clamp(dot(normalize(vHeatNormal), V), 0.0, 1.0), uRimPower);
+        float flicker = 1.0 + (kfbm(vec2(uTime * 7.0, vHeatUv.y * 11.0)) - 0.5) * 0.28 * h;
+
+        float mask = (0.01 + hamon * 2.6 + edgeZone * 0.3)
+                   * (0.65 + rim * uRimBoost)
+                   * (0.12 + 0.88 * h)
+                   * mix(0.8, 1.2, tip);
+        totalEmissiveRadiance += hot * mask * uEmissive * max(flicker, 0.0);
+        totalEmissiveRadiance += uHotHigh * uFlash * (0.25 + hamon * 1.4);
+
+        // едва заметное «дрожание» блика
+        float wob = kfbm(vec2(vHeatUv.y * 6.0 + uTime * uShimmer, vHeatUv.x * 4.0));
+        totalEmissiveRadiance *= 1.0 + (wob - 0.5) * 0.10 * h;
+      }`);
+};
+
+const bladeGeo = buildBladeGeometry();
+const blade = new THREE.Mesh(bladeGeo, bladeMat);
+blade.castShadow = true;
+blade.receiveShadow = true;
+
+const katana = new THREE.Group();
+katana.add(blade);
+
+// цуба (гарда)
+const ironMat = new THREE.MeshStandardMaterial({ color: 0x2b2b28, metalness: 0.95, roughness: 0.42, envMapIntensity: 1.0 });
+const brassMat = new THREE.MeshStandardMaterial({ color: 0xb08d57, metalness: 1.0, roughness: 0.30, envMapIntensity: 1.1 });
+const wrapMat = new THREE.MeshStandardMaterial({ map: makeWrapTexture(), color: 0xbfc6d2, metalness: 0.1, roughness: 0.72, envMapIntensity: 0.6 });
+
+const tsuba = new THREE.Mesh(new THREE.CylinderGeometry(0.118, 0.118, 0.016, 56), ironMat);
+tsuba.position.y = -0.008;
+tsuba.castShadow = true;
+katana.add(tsuba);
+
+const tsubaRim = new THREE.Mesh(new THREE.TorusGeometry(0.112, 0.007, 10, 56), ironMat);
+tsubaRim.rotation.x = Math.PI / 2;
+tsubaRim.position.y = 0.002;
+katana.add(tsubaRim);
+
+const habaki = new THREE.Mesh(new THREE.BoxGeometry(0.075, 0.075, 0.052), brassMat);
+habaki.position.y = 0.045;
+habaki.castShadow = true;
+katana.add(habaki);
+
+const fuchi = new THREE.Mesh(new THREE.CylinderGeometry(0.043, 0.046, 0.038, 20), ironMat);
+fuchi.position.y = -0.03;
+katana.add(fuchi);
+
+const handle = new THREE.Mesh(new THREE.CylinderGeometry(0.034, 0.043, 0.66, 20, 1, true), wrapMat);
+handle.position.y = -0.375;
+handle.castShadow = true;
+katana.add(handle);
+
+const kashira = new THREE.Mesh(new THREE.CylinderGeometry(0.042, 0.040, 0.034, 20), ironMat);
+kashira.position.y = -0.715;
+kashira.castShadow = true;
+katana.add(kashira);
+
+const menuki = new THREE.Mesh(new THREE.TorusGeometry(0.043, 0.005, 8, 18), brassMat);
+menuki.rotation.z = Math.PI / 2;
+menuki.rotation.x = Math.PI / 2;
+menuki.position.set(0, -0.38, 0);
+katana.add(menuki);
+
+katana.position.set(0, 0.90, 0);
+katana.rotation.z = 0.14;
+katana.add(heatLight);
+heatLight.position.set(0, 1.7, 0.4);
+scene.add(katana);
+
+// ---------------------------------------------------------------- glow sprites
+const glowMat = new THREE.SpriteMaterial({
+  map: glowTex, color: 0xff6a20, transparent: true, opacity: 0,
+  blending: THREE.AdditiveBlending, depthWrite: false, depthTest: true
+});
+const glowA = new THREE.Sprite(glowMat.clone());
+glowA.scale.set(1.35, 2.0, 1);
+glowA.position.set(0.07, 1.55, 0.02);
+katana.add(glowA);
+
+const glowMatB = glowMat.clone();
+const glowB = new THREE.Sprite(glowMatB);
+glowB.scale.set(0.9, 1.2, 1);
+glowB.position.set(0.10, 2.35, 0.02);
+katana.add(glowB);
+
+const flashSpriteMat = new THREE.SpriteMaterial({
+  map: glowTex, color: 0xffd0a0, transparent: true, opacity: 0,
+  blending: THREE.AdditiveBlending, depthWrite: false, depthTest: false
+});
+const flashSprite = new THREE.Sprite(flashSpriteMat);
+flashSprite.scale.setScalar(0.6);
+scene.add(flashSprite);
+
+// ---------------------------------------------------------------- particles
+class ParticlePool {
+  constructor({ count, size, gravity, drag, sway = 0 }) {
+    this.count = count;
+    this.gravity = gravity;
+    this.drag = drag;
+    this.sway = sway;
+    this.cursor = 0;
+    this.pos = new Float32Array(count * 3);
+    this.vel = new Float32Array(count * 3);
+    this.col = new Float32Array(count * 3);
+    this.base = new Float32Array(count * 3);
+    this.life = new Float32Array(count);
+    this.max = new Float32Array(count);
+    for (let i = 0; i < count; i++) this.pos[i * 3 + 1] = -999;
+
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute('position', new THREE.BufferAttribute(this.pos, 3));
+    geo.setAttribute('color', new THREE.BufferAttribute(this.col, 3));
+    this.geo = geo;
+    const mat = new THREE.PointsMaterial({
+      size, map: dotTex, transparent: true, depthWrite: false,
+      blending: THREE.AdditiveBlending, vertexColors: true, sizeAttenuation: true
+    });
+    this.points = new THREE.Points(geo, mat);
+    this.points.frustumCulled = false;
+  }
+
+  spawn(p, v, color, life) {
+    const i = this.cursor = (this.cursor + 1) % this.count;
+    const i3 = i * 3;
+    this.pos[i3] = p.x; this.pos[i3 + 1] = p.y; this.pos[i3 + 2] = p.z;
+    this.vel[i3] = v.x; this.vel[i3 + 1] = v.y; this.vel[i3 + 2] = v.z;
+    this.base[i3] = color.r; this.base[i3 + 1] = color.g; this.base[i3 + 2] = color.b;
+    this.life[i] = this.max[i] = life;
+  }
+
+  update(dt, time) {
+    for (let i = 0; i < this.count; i++) {
+      if (this.life[i] <= 0) continue;
+      const i3 = i * 3;
+      this.life[i] -= dt;
+      if (this.life[i] <= 0) {
+        this.pos[i3 + 1] = -999;
+        this.col[i3] = this.col[i3 + 1] = this.col[i3 + 2] = 0;
+        continue;
+      }
+      const k = this.life[i] / this.max[i];
+      this.vel[i3 + 1] += this.gravity * dt;
+      if (this.sway) {
+        this.vel[i3] += Math.sin(time * 2.6 + i * 1.7) * this.sway * dt;
+        this.vel[i3 + 2] += Math.cos(time * 2.1 + i * 2.3) * this.sway * dt;
+      }
+      const damp = Math.pow(this.drag, dt * 60);
+      this.vel[i3] *= damp; this.vel[i3 + 1] *= damp; this.vel[i3 + 2] *= damp;
+      this.pos[i3] += this.vel[i3] * dt;
+      this.pos[i3 + 1] += this.vel[i3 + 1] * dt;
+      this.pos[i3 + 2] += this.vel[i3 + 2] * dt;
+
+      const fade = k * k;
+      this.col[i3] = this.base[i3] * fade;
+      this.col[i3 + 1] = this.base[i3 + 1] * fade;
+      this.col[i3 + 2] = this.base[i3 + 2] * fade;
+    }
+    this.geo.attributes.position.needsUpdate = true;
+    this.geo.attributes.color.needsUpdate = true;
+  }
+}
+
+const sparks = new ParticlePool({ count: 420, size: 0.030, gravity: -7.5, drag: 0.965 });
+scene.add(sparks.points);
+
+const embers = new ParticlePool({ count: 260, size: 0.011, gravity: 0.30, drag: 0.995, sway: 0.55 });
+scene.add(embers.points);
+
+const sparkColor = new THREE.Color(0xffb060).convertSRGBToLinear().multiplyScalar(0.85);
+const emberColor = new THREE.Color(0xff3a00).convertSRGBToLinear().multiplyScalar(0.4);
+const emberColorHot = new THREE.Color(0xff9a40).convertSRGBToLinear().multiplyScalar(0.34);
+
+// ---------------------------------------------------------------- state
+let heat = 0;
+let flash = 0;
+let autoCool = true;
+let coolSpeed = 1;
+let emberAcc = 0;
+let comboHits = 0;
+let lastBlockTime = -99;
+
+const tmpV = new THREE.Vector3();
+const tmpV2 = new THREE.Vector3();
+
+function bladeEdgePoint(t, out) {
+  const y = t * BLADE_LEN;
+  const cx = -SORI * t * t;
+  const tip = t < 0.88 ? 1 : 1 - 0.9 * Math.pow((t - 0.88) / 0.12, 1.35);
+  const w = BLADE_WIDTH * (1 - 0.10 * t) * tip;
+  out.set(cx + w * 0.5, y, 0);
+  return out;
+}
+
+function addHeat(amount) {
+  heat = clamp01(heat + amount);
+}
+
+function doBlock(impact = 0.7, perfect = false, worldPoint = null) {
+  const now = performance.now() / 1000;
+  comboHits = now - lastBlockTime < 0.7 ? comboHits + 1 : 1;
+  lastBlockTime = now;
+
+  const combo = Math.min(1 + 0.15 * Math.max(0, comboHits - 1), 1.7);
+  const gain = (perfect ? 0.16 : 0.10) * lerp(0.4, 1, impact) * combo * (1 - heat * 0.55);
+  addHeat(gain);
+  flash = Math.min(1, flash + (perfect ? 1 : 0.65));
+
+  const point = worldPoint
+    ? worldPoint.clone()
+    : katana.localToWorld(bladeEdgePoint(0.35 + Math.random() * 0.55, new THREE.Vector3()));
+
+  const n = Math.round(lerp(12, 44, impact) * (perfect ? 1.4 : 1));
+  for (let i = 0; i < n; i++) {
+    tmpV.set(
+      (Math.random() - 0.5) * 2.2,
+      Math.random() * 1.8 + 0.2,
+      (Math.random() - 0.5) * 2.4
+    ).normalize().multiplyScalar(1.4 + Math.random() * 5.2 * (0.5 + impact));
+
+    const lc = sparkColor.clone().lerp(new THREE.Color(0xffffff), Math.random() * 0.45);
+    sparks.spawn(point, tmpV, lc, 0.28 + Math.random() * 0.65);
+  }
+
+  flashSprite.position.copy(point);
+  flashSprite.position.z += 0.02;
+  flashSpriteMat.opacity = 1;
+  flashSprite.scale.setScalar(0.35 + impact * 0.3);
+
+  updateHud();
+}
+
+function resetHeat() {
+  heat = 0;
+  comboHits = 0;
+  flash = 0;
+  updateHud();
+}
+
+// ---------------------------------------------------------------- hud
+const el = {
+  percent: document.getElementById('percent'),
+  stage: document.getElementById('stage'),
+  fill: document.getElementById('fill'),
+  slider: document.getElementById('heatSlider'),
+  heatVal: document.getElementById('heatVal'),
+  coolChk: document.getElementById('coolChk'),
+  combo: document.getElementById('combo'),
+  comboVal: document.getElementById('comboVal'),
+};
+
+const STAGES = [
+  { t: 0.00, name: 'Холодная сталь', color: '#8fa3b8' },
+  { t: 0.22, name: 'Нагрев',         color: '#e0b56a' },
+  { t: 0.45, name: 'Побежалость',    color: '#b98bd0' },
+  { t: 0.68, name: 'Раскалённый клинок', color: '#ff7a2a' },
+  { t: 0.90, name: 'Белое каление',  color: '#ffd48a' },
+];
+
+function stageFor(h) {
+  let s = STAGES[0];
+  for (const st of STAGES) if (h >= st.t) s = st;
+  return s;
+}
+
+function updateHud() {
+  const pct = Math.round(heat * 100);
+  const st = stageFor(heat);
+  el.percent.innerHTML = `${pct}<small>%</small>`;
+  el.stage.textContent = st.name;
+  el.stage.style.color = st.color;
+  el.fill.style.width = `${pct}%`;
+  el.heatVal.textContent = `${pct}%`;
+  el.slider.value = pct;
+  document.documentElement.style.setProperty('--stage', st.color);
+  document.documentElement.style.setProperty('--accent', st.color);
+
+  el.combo.classList.toggle('on', heat > 0.02 && performance.now() / 1000 - lastBlockTime < 0.7);
+  const combo = Math.min(1 + 0.15 * Math.max(0, comboHits - 1), 1.7);
+  el.comboVal.textContent = `×${combo.toFixed(1)}`;
+}
+
+el.slider.addEventListener('input', () => {
+  heat = Number(el.slider.value) / 100;
+  updateHud();
+});
+
+el.coolChk.addEventListener('change', () => { autoCool = el.coolChk.checked; });
+
+document.getElementById('blockBtn').addEventListener('click', () => doBlock(0.55 + Math.random() * 0.35));
+document.getElementById('parryBtn').addEventListener('click', () => doBlock(1, true));
+
+window.addEventListener('keydown', (e) => {
+  if (e.code === 'Space') {
+    e.preventDefault();
+    doBlock(0.6 + Math.random() * 0.35, e.shiftKey);
+  } else if (e.code === 'KeyR') {
+    resetHeat();
+  }
+});
+
+// ---------------------------------------------------------------- pointer interaction
+const raycaster = new THREE.Raycaster();
+const pointer = new THREE.Vector2();
+let drag = null;
+let parallax = new THREE.Vector2();
+
+canvas.addEventListener('pointerdown', (e) => {
+  drag = { x: e.clientX, y: e.clientY, moved: false };
+  pointer.set((e.clientX / innerWidth) * 2 - 1, -(e.clientY / innerHeight) * 2 + 1);
+  raycaster.setFromCamera(pointer, camera);
+  const hit = raycaster.intersectObject(blade, false)[0];
+  if (hit) {
+    doBlock(0.55 + Math.random() * 0.4, e.shiftKey, hit.point);
+  }
+});
+
+canvas.addEventListener('pointermove', (e) => {
+  parallax.x = (e.clientX / innerWidth - 0.5) * 0.5;
+  parallax.y = (e.clientY / innerHeight - 0.5) * 0.3;
+  if (drag) drag.moved = true;
+});
+
+window.addEventListener('pointerup', () => { drag = null; });
+window.addEventListener('pointerleave', () => { drag = null; });
+
+// ---------------------------------------------------------------- resize
+window.addEventListener('resize', () => {
+  camera.aspect = innerWidth / innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight);
+});
+
+// ---------------------------------------------------------------- loop
+const clock = new THREE.Clock();
+const shake = new THREE.Vector3();
+
+function frame() {
+  const dt = Math.min(clock.getDelta(), 0.05);
+  const t = clock.elapsedTime;
+
+  // тепло
+  if (autoCool && heat > 0) {
+    const rate = (0.014 + 0.055 * heat) * coolSpeed;
+    heat = Math.max(0, heat - rate * dt);
+  }
+  if (performance.now() / 1000 - lastBlockTime > 0.7) comboHits = 0;
+
+  flash = Math.max(0, flash - dt * 4.5);
+  heatUniforms.uHeat.value = heat;
+  heatUniforms.uFlash.value = flash;
+  heatUniforms.uTime.value = t;
+
+  // покачивание катаны
+  katana.position.y = 0.90 + Math.sin(t * 0.9) * 0.016;
+  katana.rotation.y = Math.sin(t * 0.32) * 0.12;
+  katana.rotation.z = 0.14 + Math.sin(t * 0.55) * 0.008;
+
+  // свечение
+  const glow = Math.pow(clamp01(heat), 1.45);
+  const gc = stageFor(heat).color;
+  const glowColor = new THREE.Color(gc).convertSRGBToLinear();
+  glowMat.color.copy(glowColor);
+  glowMat.opacity = glow * 0.12;
+  glowMatB.color.copy(glowColor);
+  glowMatB.opacity = glow * 0.2;
+  const pulse = 1 + Math.sin(t * 9) * 0.03 * heat;
+  glowA.scale.set((1.5 + heat * 2.0) * pulse, (2.1 + heat * 1.5) * pulse, 1);
+  glowB.scale.set((0.9 + heat * 1.2) * pulse, (1.1 + heat * 1.0) * pulse, 1);
+
+  heatLight.intensity = glow * (0.9 + Math.sin(t * 8.5) * 0.18 * heat);
+  heatLight.color.set(hcColor(heat));
+
+  // искры/угольки
+  sparks.update(dt, t);
+  embers.update(dt, t);
+
+  if (heat > 0.42) {
+    const rate = lerp(4, 46, Math.pow((heat - 0.42) / 0.58, 1.3));
+    emberAcc += rate * dt;
+    while (emberAcc >= 1) {
+      emberAcc -= 1;
+      const p = katana.localToWorld(bladeEdgePoint(0.15 + Math.random() * 0.8, new THREE.Vector3()));
+      p.x += (Math.random() - 0.5) * 0.03;
+      p.z += (Math.random() - 0.5) * 0.03;
+      tmpV2.set((Math.random() - 0.5) * 0.25, 0.35 + Math.random() * 0.5, (Math.random() - 0.5) * 0.25);
+      const c = emberColor.clone().lerp(emberColorHot, Math.random());
+      embers.spawn(p, tmpV2, c, 0.7 + Math.random() * 1.2);
+    }
+  }
+
+  flashSpriteMat.opacity = Math.max(0, flashSpriteMat.opacity - dt * 7);
+  flashSprite.scale.addScalar(dt * 1.6);
+
+  // камера: параллакс + микротряска от удара
+  shake.set(
+    (Math.random() - 0.5) * flash * 0.01,
+    (Math.random() - 0.5) * flash * 0.01,
+    0
+  );
+  camera.position.x += (camHome.x + parallax.x - camera.position.x) * Math.min(1, dt * 4);
+  camera.position.y += (camHome.y + parallax.y - camera.position.y) * Math.min(1, dt * 4);
+  camera.position.z = camHome.z;
+  camera.position.add(shake);
+  camera.lookAt(camLook);
+
+  updateHud();
+
+  renderer.render(scene, camera);
+}
+
+function hcColor(h) {
+  if (h < 0.45) return new THREE.Color(0xff4a08);
+  if (h < 0.8) return new THREE.Color(0xff7a1e);
+  return new THREE.Color(0xffc060);
+}
+
+// стартовое значение из ?heat=0.8 — удобно для скриншотов
+const q = new URLSearchParams(location.search);
+if (q.has('heat')) heat = clamp01(parseFloat(q.get('heat')) || 0);
+heatUniforms.uHeat.value = heat;
+updateHud();
+
+renderer.setAnimationLoop(frame);
+
+// небольшой отладочный API — удобно дергать из консоли и автотестов
+window.__katana = {
+  get heat() { return heat; },
+  setHeat(v) { heat = clamp01(v); updateHud(); },
+  block: doBlock,
+  reset: resetHeat,
+};
+</script>
+</body>
+</html>
